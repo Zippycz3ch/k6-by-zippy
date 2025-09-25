@@ -1,0 +1,47 @@
+services:
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - influxdb
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/dashboards/ui:/var/lib/grafana/dashboards/ui
+      - ./grafana/dashboards/api:/var/lib/grafana/dashboards/api
+      - ./grafana/provisioning:/etc/grafana/provisioning
+
+  quickpizza:
+    image: ghcr.io/grafana/quickpizza-local:latest
+    container_name: quickpizza
+    ports:
+      - "3333:3333"
+
+  k6:
+    image: custom-k6:latest
+    container_name: k6
+    depends_on:
+      - influxdb
+      - quickpizza
+    volumes:
+      - ../tests:/tests
+      - ../screenshots://screenshots
+    working_dir: /tests
+    stdin_open: true
+    tty: true
+    entrypoint: ["sleep", "infinity"]
+
+volumes:
+  influxdb-data:
+  grafana-data:
