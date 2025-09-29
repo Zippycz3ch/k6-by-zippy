@@ -1,0 +1,537 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": 6,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+          "type": "influxdb",
+          "uid": "P5697886F9CA74929"
+        },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "right",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "displayName": "${__field.labels.name}",
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "ms",
+          "unitScale": true
+        },
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "PrintableJobs/getByDevice"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 21,
+        "w": 12,
+        "x": 0,
+        "y": 2
+      },
+      "id": 145,
+      "maxDataPoints": 35000,
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Name",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "maxHeight": 600,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.0.1",
+      "targets": [
+        {
+          "datasource": {
+          "type": "influxdb",
+          "uid": "P5697886F9CA74929"
+        },
+          "hide": false,
+          "query": "from(bucket: \"k6\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"http_req_duration\")\r\n  |> filter(fn: (r) => r[\"group\"] != \"::setup\")\r\n  |> filter(fn: (r) => r[\"group\"] != \"::teardown\")\r\n  |> filter(fn: (r) => r._field == \"value\")\r\n  |> filter(fn: (r) => r[\"status\"] == \"200\")\r\n  |> filter(fn: (r) => r[\"branch\"] =~ /${branch:regex}/)\r\n  |> filter(fn: (r) => r[\"release\"] =~ /${release:regex}/)\r\n  |> filter(fn: (r) => r[\"buildId\"] =~ /${buildId:regex}/)\r\n  |> filter(fn: (r) => r[\"testid\"] =~ /${testId:regex}/)\r\n  |> filter(fn: (r) => r[\"scenario\"] =~ /${scenario:regex}/)\r\n  |> group(columns: [\"name\"])                    // Group by request name\r\n  |> window(every: 1d)                           // Daily windows\r\n  |> quantile(column: \"_value\", q: 0.9, method: \"exact_mean\")  // P90\r\n  |> duplicate(column: \"_stop\", as: \"_time\")     // Align _time for charting\r\n  |> keep(columns: [\"_time\", \"_value\", \"name\"])\r\n  |> yield(name: \"daily_p90_http_req_duration\")\r\n",
+          "refId": "Response time"
+        }
+      ],
+      "title": "API Response time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+          "type": "influxdb",
+          "uid": "P5697886F9CA74929"
+        },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "right",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "displayName": "${__field.labels.name}",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 21,
+        "w": 12,
+        "x": 12,
+        "y": 2
+      },
+      "id": 19,
+      "maxDataPoints": 35000,
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "mean",
+            "max",
+            "lastNotNull",
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Total",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "maxHeight": 600,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.0.1",
+      "targets": [
+        {
+          "datasource": {
+          "type": "influxdb",
+          "uid": "P5697886F9CA74929"
+        },
+          "hide": false,
+          "query": "from(bucket: \"k6\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"http_req_failed\")\r\n  |> filter(fn: (r) => r[\"group\"] != \"::setup\")\r\n  |> filter(fn: (r) => r[\"group\"] != \"::teardown\")\r\n  |> filter(fn: (r) => r[\"release\"] =~ /${release:regex}/)\r\n  |> filter(fn: (r) => r[\"testid\"] =~ /${testId:regex}/)\r\n  |> filter(fn: (r) => r[\"scenario\"] =~ /${scenario:regex}/)\r\n  |> filter(fn: (r) => r[\"buildId\"] =~ /${buildId:regex}/)\r\n  |> filter(fn: (r) => r[\"branch\"] =~ /${branch:regex}/)\r\n    |> filter(fn: (r) => r[\"_field\"] == \"value\")\r\n  |> group(columns: [\"_measurement\", \"name\"])\r\n  |> aggregateWindow(every: 1d, fn: sum, createEmpty: false)\r\n  |> yield(name: \"sum\")\r\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Failed Requests",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "1h",
+  "schemaVersion": 39,
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allowCustomValue": false,
+        "current": {
+          "isNone": true,
+          "selected": false,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": {
+          "type": "influxdb",
+          "uid": "P5697886F9CA74929"
+        },
+        "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"project\")",
+        "description": "",
+        "hide": 0,
+        "includeAll": true,
+        "label": "project",
+        "multi": true,
+        "name": "project",
+        "options": [],
+        "query": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"project\")",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "allowCustomValue": false,
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "influxdb",
+          "uid": "P5697886F9CA74929"
+        },
+        "definition": "import \"influxdata/influxdb/schema\"\nimport \"strings\"\n\nschema.tagValues(\n  bucket: v.defaultBucket,\n  tag: \"testid\",\n  predicate: (r) => r.project =~ /^${project:regex}$/\n)\n  |> filter(fn: (r) => not strings.hasPrefix(v: r._value, prefix: \"K6-UI-\"))",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Test",
+        "multi": true,
+        "name": "testId",
+        "options": [],
+        "query": {
+          "0": "i",
+          "1": "m",
+          "2": "p",
+          "3": "o",
+          "4": "r",
+          "5": "t",
+          "6": " ",
+          "7": "\"",
+          "8": "i",
+          "9": "n",
+          "10": "f",
+          "11": "l",
+          "12": "u",
+          "13": "x",
+          "14": "d",
+          "15": "a",
+          "16": "t",
+          "17": "a",
+          "18": "/",
+          "19": "i",
+          "20": "n",
+          "21": "f",
+          "22": "l",
+          "23": "u",
+          "24": "x",
+          "25": "d",
+          "26": "b",
+          "27": "/",
+          "28": "s",
+          "29": "c",
+          "30": "h",
+          "31": "e",
+          "32": "m",
+          "33": "a",
+          "34": "\"",
+          "35": "\r",
+          "36": "\n",
+          "37": "s",
+          "38": "c",
+          "39": "h",
+          "40": "e",
+          "41": "m",
+          "42": "a",
+          "43": ".",
+          "44": "t",
+          "45": "a",
+          "46": "g",
+          "47": "V",
+          "48": "a",
+          "49": "l",
+          "50": "u",
+          "51": "e",
+          "52": "s",
+          "53": "(",
+          "54": "b",
+          "55": "u",
+          "56": "c",
+          "57": "k",
+          "58": "e",
+          "59": "t",
+          "60": ":",
+          "61": " ",
+          "62": "v",
+          "63": ".",
+          "64": "d",
+          "65": "e",
+          "66": "f",
+          "67": "a",
+          "68": "u",
+          "69": "l",
+          "70": "t",
+          "71": "B",
+          "72": "u",
+          "73": "c",
+          "74": "k",
+          "75": "e",
+          "76": "t",
+          "77": ",",
+          "78": " ",
+          "79": "t",
+          "80": "a",
+          "81": "g",
+          "82": ":",
+          "83": " ",
+          "84": "\"",
+          "85": "t",
+          "86": "e",
+          "87": "s",
+          "88": "t",
+          "89": "i",
+          "90": "d",
+          "91": "\"",
+          "92": ")",
+          "query": "import \"influxdata/influxdb/schema\"\r\nimport \"strings\"\r\n\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"testid\")\r\n  |> filter(fn: (r) => not strings.hasPrefix(v: r._value, prefix: \"K6-UI-\"))\r\n"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "allowCustomValue": false,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "influxdb",
+          "uid": "P5697886F9CA74929"
+        },
+        "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"scenario\")",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Config",
+        "multi": false,
+        "name": "scenario",
+        "options": [],
+        "query": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"scenario\")",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "influxdb",
+          "uid": "P5697886F9CA74929"
+        },
+        "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"branch\")",
+        "description": "",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Branch",
+        "multi": false,
+        "name": "branch",
+        "options": [],
+        "query": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"branch\")",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"release\")",
+        "description": "",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Release",
+        "multi": true,
+        "name": "release",
+        "options": [],
+        "query": {
+          "query": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"release\")"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "influxdb",
+          "uid": "P5697886F9CA74929"
+        },
+        "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"buildId\")",
+        "description": "",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Build ID",
+        "multi": false,
+        "name": "buildId",
+        "options": [],
+        "query": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"buildId\")",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
+  "timeRangeUpdatedDuringEditOrView": false,
+  "timepicker": {},
+  "timezone": "",
+  "title": "K6 - API - Longterm results",
+  "uid": "qe7ngk9kay2jcl",
+  "version": 1,
+  "weekStart": ""
+}
+
+
+
+
+
+

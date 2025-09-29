@@ -1,0 +1,329 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": 5,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 29,
+      "panels": [],
+      "title": "Test",
+      "type": "row"
+    },
+    {
+      "datasource": {
+          "type": "influxdb",
+          "uid": "P5697886F9CA74929"
+        },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unitScale": true
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "EP"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 286
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 44,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "id": 143,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": [
+            "Failures"
+          ],
+          "reducer": [
+            "sum"
+          ],
+          "show": true
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "10.3.4",
+      "targets": [
+        {
+          "datasource": {
+          "type": "influxdb",
+          "uid": "P5697886F9CA74929"
+        },
+          "query": "data = from(bucket: \"k6\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r._measurement == \"http_req_duration\" or r._measurement == \"http_req_failed\")\r\n  |> filter(fn: (r) => r[\"group\"] != \"::setup\")\r\n  |> filter(fn: (r) => r[\"group\"] != \"::teardown\")\r\n  |> filter(fn: (r) => r[\"buildId\"] =~ /${buildId:regex}/)\r\n  |> filter(fn: (r) => r[\"release\"] =~ /${release:regex}/)\r\n  |> filter(fn: (r) => r[\"branch\"] =~ /${branch:regex}/)\r\n  |> filter(fn: (r) => r[\"testid\"] =~ /${testId:regex}/)\r\n  |> filter(fn: (r) => r[\"scenario\"] =~ /${scenario:regex}/)\r\n  |> filter(fn: (r) => r._field == \"value\")\r\n  |> group(columns: [\"name\"])\r\n\r\nquantile_result = data\r\n  |> filter(fn: (r) => r._measurement == \"http_req_duration\")\r\n  |> quantile(q: 0.90, method: \"exact_mean\")\r\n  |> map(fn: (r) => ({r with \"Percentile 90th (ms)\": r._value}))\r\n  |> drop(columns: [\"_value\", \"_start\", \"_stop\", \"_measurement\", \"_field\"])\r\n\r\nmean_result = data\r\n  |> filter(fn: (r) => r._measurement == \"http_req_duration\")\r\n  |> mean(column: \"_value\")\r\n  |> map(fn: (r) => ({r with \"Avg Request Time (ms)\": r._value}))\r\n  |> drop(columns: [\"_value\", \"_start\", \"_stop\", \"_measurement\", \"_field\"])\r\n\r\ncount_result = data\r\n  |> filter(fn: (r) => r._measurement == \"http_req_duration\")\r\n  |> count(column: \"_value\")\r\n  |> map(fn: (r) => ({r with \"Requests count\": r._value}))\r\n  |> drop(columns: [\"_value\", \"_start\", \"_stop\", \"_measurement\", \"_field\"])\r\n\r\nfailure_result = data\r\n  |> filter(fn: (r) => r._measurement == \"http_req_failed\")\r\n  |> sum(column: \"_value\")\r\n  |> map(fn: (r) => ({r with \"Failures\": r._value}))\r\n  |> drop(columns: [\"_value\", \"_start\", \"_stop\", \"_measurement\", \"_field\"])\r\n\r\np95_result = data\r\n  |> filter(fn: (r) => r._measurement == \"http_req_duration\")\r\n  |> quantile(q: 0.95, method: \"exact_mean\")\r\n  |> map(fn: (r) => ({r with \"Percentile 95th (ms)\": r._value}))\r\n  |> drop(columns: [\"_value\", \"_start\", \"_stop\", \"_measurement\", \"_field\"])\r\n\r\nlongest_result = data\r\n  |> filter(fn: (r) => r._measurement == \"http_req_duration\")\r\n  |> max(column: \"_value\")\r\n  |> map(fn: (r) => ({r with \"Longest Request (ms)\": r._value}))\r\n  |> drop(columns: [\"_value\", \"_start\", \"_stop\", \"_measurement\", \"_field\"])\r\n\r\nshortest_result = data\r\n  |> filter(fn: (r) => r._measurement == \"http_req_duration\")\r\n  |> min(column: \"_value\")\r\n  |> map(fn: (r) => ({r with \"Shortest Request (ms)\": r._value}))\r\n  |> drop(columns: [\"_value\", \"_start\", \"_stop\", \"_measurement\", \"_field\"])\r\n\r\nquantile_mean_join = join(tables: {quantile: quantile_result, mean: mean_result}, on: [\"name\"])\r\nquantile_mean_count_join = join(tables: {quantile_mean: quantile_mean_join, count: count_result}, on: [\"name\"])\r\nfailures_join = join(tables: {quantile_mean_count: quantile_mean_count_join, failures: failure_result}, on: [\"name\"])\r\np95_join = join(tables: {failures_join: failures_join, p95: p95_result}, on: [\"name\"])\r\nlongest_join = join(tables: {p95_join: p95_join, longest: longest_result}, on: [\"name\"])\r\nfinal_result = join(tables: {longest_join: longest_join, shortest: shortest_result}, on: [\"name\"])\r\n\r\nfinal_result\r\n  |> keep(columns: [\"name\", \"Requests count\", \"Percentile 90th (ms)\", \"Avg Request Time (ms)\", \"Failures\", \"Percentile 95th (ms)\", \"Longest Request (ms)\", \"Shortest Request (ms)\"])\r\n  |> group(columns: [])\r\n  |> yield(name: \"request_stats\")",
+          "refId": "A"
+        }
+      ],
+      "title": "EPs statistics",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {},
+            "indexByName": {
+              "Avg Request Time (ms)": 2,
+              "Failures": 3,
+              "Longest Request (ms)": 7,
+              "Percentile 90th (ms)": 4,
+              "Percentile 95th (ms)": 5,
+              "Requests count": 1,
+              "Shortest Request (ms)": 6,
+              "name": 0
+            },
+            "renameByName": {
+              "name": "EP"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    }
+  ],
+  "refresh": "30m",
+  "schemaVersion": 39,
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allowCustomValue": false,
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "datasource": {
+          "type": "influxdb",
+          "uid": "P5697886F9CA74929"
+        },
+        "definition": "buckets()",
+        "description": "",
+        "error": {},
+        "hide": 0,
+        "includeAll": false,
+        "label": "Bucket",
+        "multi": false,
+        "name": "Bucket",
+        "options": [],
+        "query": {
+          "query": "buckets()"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "allowCustomValue": false,
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "influxdb",
+          "uid": "P5697886F9CA74929"
+        },
+        "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"testid\")",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Test",
+        "multi": true,
+        "name": "testId",
+        "options": [],
+        "query": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"testid\")",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "allowCustomValue": false,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "influxdb",
+          "uid": "P5697886F9CA74929"
+        },
+        "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"scenario\")",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Config",
+        "multi": false,
+        "name": "scenario",
+        "options": [],
+        "query": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"scenario\")",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "datasource": {
+          "type": "influxdb",
+          "uid": "P5697886F9CA74929"
+        },
+        "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"branch\")",
+        "description": "",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Branch",
+        "multi": false,
+        "name": "branch",
+        "options": [],
+        "query": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"branch\")",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": [
+            ""
+          ],
+          "value": [
+            ""
+          ]
+        },
+        "datasource": {
+          "type": "influxdb",
+          "uid": "P5697886F9CA74929"
+        },
+        "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"release\")",
+        "description": "",
+        "error": {},
+        "hide": 0,
+        "includeAll": true,
+        "label": "Release",
+        "multi": true,
+        "name": "release",
+        "options": [],
+        "query": {
+          "query": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"release\")"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "influxdb",
+          "uid": "P5697886F9CA74929"
+        },
+        "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"buildId\")",
+        "description": "",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Build ID",
+        "multi": false,
+        "name": "buildId",
+        "options": [],
+        "query": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"buildId\")",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timeRangeUpdatedDuringEditOrView": false,
+  "timepicker": {},
+  "timezone": "",
+  "title": "K6 - API - Version aggregation",
+  "uid": "te6ngk4kay8zpu",
+  "version": 1,
+  "weekStart": ""
+}
+
+
+
+
+
+

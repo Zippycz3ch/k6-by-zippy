@@ -1,0 +1,13 @@
+screenshots
+
+# Docker artifacts
+docker/influxdb-data/
+docker/grafana-data/
+*.log
+
+# VSCode and system files
+.vscode/
+.DS_Store
+
+# OS generated files
+Thumbs.db
