@@ -2,7 +2,6 @@ import { prepareUI } from "/helpers/prepareUI.js";
 import { takeScreenshot } from "/helpers/takeScreenshot.js";
 import { basicChecks } from "/helpers/basicChecks.js";
 
-// Inline configuration - no external JSON needed
 export const options = {
   setupTimeout: "1m",
   thresholds: {
@@ -31,7 +30,6 @@ export const options = {
 export function setup() {}
 
 export async function test() {
-  // Hardcoded test data - modify as needed
   const url = "https://quickpizza.grafana.com/";
   const testName = "sample-home";
 
