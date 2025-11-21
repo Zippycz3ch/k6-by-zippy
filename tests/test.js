@@ -1,10 +1,10 @@
-import { prepareUI } from "./helpers/prepareUI.js";
-import { takeScreenshot } from "./helpers/takeScreenshot.js";
-import { basicChecks } from "./helpers/basicChecks.js";
+import { prepareUI } from "/helpers/prepareUI.js";
+import { takeScreenshot } from "/helpers/takeScreenshot.js";
+import { basicChecks } from "/helpers/basicChecks.js";
 
-const scenario = __ENV.SCENARIO || "1iter";
-const testType = __ENV.testType || "UI";
-const project = __ENV.project || "quickPizza";
+const scenario = __ENV.SCENARIO;
+const testType = __ENV.testType;
+const project = __ENV.project;
 const configPath = `./${testType}/configs/${scenario}.json`;
 const configRaw = open(configPath);
 const config = JSON.parse(configRaw);
@@ -20,6 +20,8 @@ export async function test() {
   const page = await prepareUI();
 
   const res = await page.goto(url);
+
+  await takeScreenshot(page, testName);
   await page.waitForLoadState("networkidle");
   await takeScreenshot(page, testName);
   await basicChecks(page, res, testName);

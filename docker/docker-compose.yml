@@ -29,6 +29,7 @@ services:
       - influxdb
     volumes:
       - ../tests:/tests
+      - ../helpers:/helpers
       - ../screenshots:/screenshots
     working_dir: /tests
     stdin_open: true

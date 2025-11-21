@@ -1,8 +1,59 @@
 # k6custom Performance Testing Stack
 
-This repository provides a complete local environment for performance testing using Grafana k6, InfluxDB v2.x and Grafana dashboards/
+This repository provides a complete local environment for UI performance testing using Grafana k6, InfluxDB v2.x and Grafana dashboards/
 
 Change your passwords if you use this as non local setup!
+
+## Based on
+
+- [k6](https://k6.io/)
+- [Grafana](https://grafana.com/)
+- [InfluxDB](https://www.influxdata.com/)
+- [QuickPizza API](https://github.com/k6io/quickpizza)
+
+---
+
+## Quick Automated Setup (Recommended)
+
+Use the provided PowerShell script for hassle-free setup and configuration.
+
+Clone repository:
+
+```sh
+git clone https://github.com/yourusername/k6-By-Zippy.git
+cd k6-By-Zippy
+```
+
+From the repo root, run:
+
+```sh
+./setup-k6custom.ps1
+```
+
+This script will:
+
+- Check all required files and dashboards.
+- Build custom k6 Docker image with browser support, InfluxDB output and faker.
+- Start InfluxDB and guide you through onboarding.
+- Start Grafana and guide you through onboarding and connectiong to Influx.
+- Creates and updates Grafana dashboards with your InfluxDB token and updates other config files.
+- Creates folder for screenshots from UI tests /screenshots
+- Build and launch all containers.
+- Run a sample test to verify the setup.
+
+Default credentials
+
+InfluxDB:
+
+- Username: `k6user`
+- Password: `k6password`
+- Organization: `k6org`
+- Bucket: `k6`
+
+Grafana:
+
+- Username: `admin`
+- Password: `admin`
 
 ---
 
@@ -20,48 +71,15 @@ Or you can run each test individually from the Docker folder. Update the tags to
 docker exec -it k6 k6 run /tests/UI/quickPizza/homepage/homepage.js --tag testid=K6-UI-quickPizzaHomePageTest --tag project=quickPizza
 ```
 
-If you are runnign UI tests, folder screenshot will be created in root durring project setup.
-
-## Quick Automated Setup (Recommended)
-
-Use the provided PowerShell script for hassle-free setup and configuration.
-
-From the repo root, run:
-
-```sh
-./setup-k6custom.ps1
-```
-
-This script will:
-
-- Check all required files and dashboards.
-- Start InfluxDB and guide you through onboarding.
-- Prompt you for the InfluxDB token.
-- Update all needed config files and every dashboard JSON (including every occurrence of InfluxDB UID).
-- Build and launch all containers.
-- Guide you to connect Grafana and update dashboards.
-
-Default credentials (for onboarding InfluxDB):
-
-- Username: `k6user`
-- Password: `k6password`
-- Organization: `k6org`
-- Bucket: `k6`
-
-Grafana default login:
-
-- Username: `admin`
-- Password: `admin`
-
----
-
 ## Manual Setup
+
+If you want to setup everything manually, start each container step by step as follows:
 
 1. Start and initialize InfluxDB
 
    ```sh
    cd docker
-   docker compose up -d influxdb
+   docker compose up -d InfluxDB
    ```
 
    Go to [http://localhost:8086](http://localhost:8086) and onboard using:
@@ -75,8 +93,8 @@ Grafana default login:
 2. Update config files
 
    - Edit `docker/Dockerfile`:
-     - Set `K6_INFLUXDB_TOKEN` to the above value.
-   - Edit `docker/grafana/provisioning/datasources/influxdb.yml`:
+     - Set `K6_InfluxDB_TOKEN` to the above value.
+   - Edit `docker/grafana/provisioning/datasources/InfluxDB.yml`:
      - Set the `organization:` and `token:` fields.
 
 3. Build your custom k6 Docker image
@@ -105,7 +123,7 @@ Grafana default login:
      - Replace all occurrences of:
        ```json
        "datasource": {
-         "type": "influxdb",
+         "type": "InfluxDB",
          "uid": "OLD-UID"
        }
        ```
@@ -138,7 +156,7 @@ Grafana default login:
 - InfluxDB/Grafana errors:
   Check logs:
   ```sh
-  docker logs influxdb
+  docker logs InfluxDB
   docker logs grafana
   ```
 - Custom k6 image not found:
@@ -146,17 +164,11 @@ Grafana default login:
 - InfluxDB unauthorized errors:
   Ensure you're using the correct org, bucket, and token as described above.
 - To reset InfluxDB setup:
-  Remove the `influxdb-data` docker volume and rerun onboarding if you want to start clean:
+  Remove the `InfluxDB-data` docker volume and rerun onboarding if you want to start clean:
   ```sh
   docker compose down -v
   ```
 
 ---
-
-## Credits
-
-- [k6](https://k6.io/)
-- [Grafana](https://grafana.com/)
-- [QuickPizza API](https://github.com/k6io/quickpizza)
 
 ---
