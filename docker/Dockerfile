@@ -19,8 +19,6 @@ USER root
 RUN apk update && apk upgrade && apk add bash && apk add jq && apk add curl
 
 ENV K6_OUT=xk6-influxdb=http://influxdb:8086 \
-        K6_BASE_URL= \
-        QUICKPIZZA_BASE_URL=https://quickpizza.grafana.com/ \
         K6_INFLUXDB_ORGANIZATION=k6org \
         K6_INFLUXDB_BUCKET=k6 \
         K6_INFLUXDB_INSECURE=true \ 

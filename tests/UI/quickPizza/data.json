@@ -1,0 +1,14 @@
+[
+  {
+    "url": "https://quickpizza.grafana.com/",
+    "testName": "home"
+  },
+  {
+    "url": "https://quickpizza.grafana.com/admin",
+    "testName": "admin"
+  },
+  {
+    "url": "https://quickpizza.grafana.com/login",
+    "testName": "login"
+  }
+]

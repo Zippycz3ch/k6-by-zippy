@@ -1,0 +1,14 @@
+[
+  {
+    "url": "https://practice.expandtesting.com/",
+    "testName": "home"
+  },
+  {
+    "url": "https://practice.expandtesting.com/webpark",
+    "testName": "webpark"
+  },
+  {
+    "url": "https://practice.expandtesting.com/login",
+    "testName": "login"
+  }
+]

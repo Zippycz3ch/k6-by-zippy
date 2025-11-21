@@ -16,36 +16,68 @@ function Show-ChoicePrompt {
     }
 }
 
-# 1. Find test root and files
-$testRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$testFile = Join-Path $testRoot "test.js"
-$dataFile = Join-Path $testRoot "data.json"
+# 1. Ask for test type first
+Write-Host "Test type:"
+Write-Host "1: UI Tests"
+Write-Host "2: API Tests"
+
+$testTypeChoice = Read-Host "Enter number (default: 1)"
+if ([string]::IsNullOrWhiteSpace($testTypeChoice)) {
+    $testTypeChoice = "1"
+}
+
+$testTypeFolder = if ($testTypeChoice -eq "2") { "API" } else { "UI" }
+$testType = if ($testTypeChoice -eq "2") { "K6-API" } else { "K6-UI" }
+Write-Host "Selected test type: $testType`n"
+
+# 2. Find available projects
+$repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$testTypeRoot = Join-Path $repoRoot "tests\$testTypeFolder"
+
+if (-not (Test-Path $testTypeRoot)) {
+    Write-Host "Test type folder not found: $testTypeRoot"
+    exit 1
+}
+
+$projects = Get-ChildItem -Path $testTypeRoot -Directory | Where-Object { $_.Name -ne "configs" } | Select-Object -ExpandProperty Name
+
+if (-not $projects) {
+    Write-Host "No projects found in $testTypeRoot"
+    exit 1
+}
+
+$project = Show-ChoicePrompt "Which project?" $projects
+
+# 3. Find test root and files
+$projectRoot = Join-Path $testTypeRoot $project
+$testFile = Join-Path $repoRoot "tests\test.js"
+$dataFile = Join-Path $projectRoot "data.json"
 
 if (-not (Test-Path $testFile)) {
-    Write-Host "test.js not found in $testRoot"
+    Write-Host "test.js not found in tests folder"
     exit 1
 }
 
 if (-not (Test-Path $dataFile)) {
-    Write-Host "data.json not found in $testRoot"
+    Write-Host "data.json not found in $projectRoot"
     exit 1
 }
 
-# 2. Load test data
+# 4. Load test data
 $testData = Get-Content $dataFile | ConvertFrom-Json
 $allUrls = @()
 
 foreach ($urlEntry in $testData) {
     $allUrls += [PSCustomObject]@{
-        UrlPath  = $urlEntry.urlPath
+        Url      = $urlEntry.url
         TestName = $urlEntry.testName
     }
 }
 
 Write-Host "`nFound $($allUrls.Count) URLs to test"
 
-# 3. Ask for config scenario
-$configDir = Join-Path $testRoot "configs"
+# 5. Ask for config scenario
+$configDir = Join-Path $testTypeRoot "configs"
 $configs = Get-ChildItem -Path $configDir -Filter *.json | Select-Object -ExpandProperty Name
 
 if (-not $configs) {
@@ -55,7 +87,7 @@ if (-not $configs) {
 
 $selectedConfig = Show-ChoicePrompt "Which config file?" $configs
 
-# 4. Ask for test range
+# 6. Ask for test range
 Write-Host "`nTest range options:"
 Write-Host "1: Test all $($allUrls.Count) URLs"
 Write-Host "2: Test specific range"
@@ -98,19 +130,15 @@ if ($confirm -notin @("Y", "y")) {
     exit 0
 }
 
-# 5. Run k6 for each URL
+# 7. Run k6 for each URL
 $results = @()
 $counter = 1
-$repoRoot = (Resolve-Path "$testRoot\..\..\..\..\..").Path.TrimEnd('\', '/')
-$testPath = $testFile.Substring($repoRoot.Length + 1).TrimStart('\', '/')
-$containerPath = "/tests/UI/quickPizza/multiplePages/test.js"
+$containerPath = "/tests/test.js"
 
 foreach ($urlData in $urlsToTest) {
-    $testid = "quickPizza-$($urlData.TestName)"
-    $project = "quickPizza"
-    $testType = "K6-UI"
+    $testid = "$project-$($urlData.TestName)"
     
-    Write-Host "`n[$counter/$($urlsToTest.Count)] Testing: $($urlData.UrlPath)"
+    Write-Host "`n[$counter/$($urlsToTest.Count)] Testing: $($urlData.Url)"
     Write-Host "  TestName: $($urlData.TestName)"
     Write-Host "  testid: $testid"
     Write-Host "  release: $release"
@@ -118,9 +146,10 @@ foreach ($urlData in $urlsToTest) {
     
     docker exec `
         -e SCENARIO="$($selectedConfig -replace '.json$')" `
-        -e QUICKPIZZA_BASE_URL="https://quickpizza.grafana.com" `
-        -e urlPath="$($urlData.UrlPath)" `
+        -e url="$($urlData.Url)" `
         -e testName="$($urlData.TestName)" `
+        -e testType="$testTypeFolder" `
+        -e project="$project" `
         -it k6 k6 run $containerPath `
         --tag testid=$testid `
         --tag project=$project `
@@ -132,7 +161,7 @@ foreach ($urlData in $urlsToTest) {
     $exitCode = $LASTEXITCODE
     
     $results += [PSCustomObject]@{
-        UrlPath  = $urlData.UrlPath
+        Url      = $urlData.Url
         TestName = $urlData.TestName
         TestId   = $testid
         ExitCode = $exitCode
@@ -147,7 +176,7 @@ $failedTests = $results | Where-Object { $_.ExitCode -ne 0 }
 if ($failedTests) {
     Write-Host "Some tests FAILED ($($failedTests.Count)/$($results.Count)):`n"
     foreach ($fail in $failedTests) {
-        Write-Host "  - [$($fail.TestName)] $($fail.UrlPath) | Exit: $($fail.ExitCode)"
+        Write-Host "  - [$($fail.TestName)] $($fail.Url) | Exit: $($fail.ExitCode)"
     }
 }
 else {

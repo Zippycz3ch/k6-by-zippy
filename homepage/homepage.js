@@ -1,6 +1,6 @@
-import { prepareUI } from "../../../helpers/prepareUI.js";
-import { takeScreenshot } from "../../../helpers/takeScreenshot.js";
-import { basicChecks } from "../../../helpers/basicChecks.js";
+import { prepareUI } from "../tests/helpers/prepareUI.js";
+import { takeScreenshot } from "../tests/helpers/takeScreenshot.js";
+import { basicChecks } from "../tests/helpers/basicChecks.js";
 
 const scenario = __ENV.SCENARIO || "1iter";
 const configRaw = open(`./configs/${scenario}.json`);
@@ -15,7 +15,7 @@ export async function quickPizzaHomePageTest() {
   const page = await prepareUI();
 
   try {
-    await page.goto("https://hartmanndirect.com/cs-cz");
+    await page.goto("https://quickpizza.grafana.com/");
     await takeScreenshot(page, testName);
     await page.waitForLoadState("networkidle");
     await basicChecks(page, testName);
