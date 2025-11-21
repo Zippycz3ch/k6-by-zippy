@@ -68,7 +68,7 @@ After setup, you can run the test suite using the provided PowerShell script:
 Or you can run each test individually from the Docker folder. Update the tags to match with testRunner tags.
 
 ```sh
-docker exec -it k6 k6 run /tests/UI/quickPizza/homepage/homepage.js --tag testid=K6-UI-quickPizzaHomePageTest --tag project=quickPizza
+docker exec -it k6 k6 run /tests/UI/uiSample.js --tag testid=K6-UI-uiSample --tag project=uiSample --tag testType=K6-UI --tag release=dev --tag buildId=12345678
 ```
 
 ## Manual Setup
@@ -141,7 +141,7 @@ If you want to setup everything manually, start each container step by step as f
 7. Run your k6 tests
 
    ```sh
-   docker exec -it k6 k6 run /tests/UI/quickPizza/homepage/homepage.js --tag testid=K6-UI-quickPizzaHomePageTest --tag project=quickPizza
+   docker exec -it k6 k6 run /tests/UI/uiSample.js --tag testid=K6-UI-quickPizzaHomePageTest --tag project=quickPizza --tag testType=K6-UI --tag release=dev --tag buildId=12345678
    ```
 
 8. View live dashboards in Grafana

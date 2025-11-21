@@ -162,6 +162,14 @@ if ($runSample -eq "Y" -or $runSample -eq "y" -or $runSample -eq "") {
         --tag release=setup `
         --tag buildId=00000000
     Write-Host "`nSample test completed. Check Grafana dashboards to see the results." -ForegroundColor Green
+    $openGrafana = Read-Host "Do you want to open Grafana in your browser now? [Y/N]"
+    if ($openGrafana -eq "Y" -or $openGrafana -eq "y" -or $openGrafana -eq "") {
+        Start-Process "http://localhost:3000/dashboards"
+        Write-Host "Browser opened for Grafana."
+    }
+    else {
+        Write-Host "Please open http://localhost:3000/dashboards in your browser manually."
+    }
 }
 else {
     Write-Host "Skipped sample test. You can run it later with:" -ForegroundColor Yellow
