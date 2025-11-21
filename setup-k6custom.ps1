@@ -148,4 +148,24 @@ docker compose down
 docker compose up -d
 Pop-Location
 Write-Host "Stack restarted." -ForegroundColor Green
-Write-Host "Setup complete. You can now run your k6 tests using the test runner." -ForegroundColor Green
+Write-Host "`nSetup complete!" -ForegroundColor Green
+
+# 9. Run sample test
+Write-Host "`n[9/9] Running sample UI test to verify setup..."
+Write-Host "   This will test https://quickpizza.grafana.com/ and send metrics to InfluxDB." -ForegroundColor Yellow
+$runSample = Read-Host "Do you want to run the sample test now? [Y/N]"
+if ($runSample -eq "Y" -or $runSample -eq "y" -or $runSample -eq "") {
+    docker exec -it k6 k6 run /tests/UI/uiSample.js `
+        --tag testid=K6-UI-quickPizzaSample `
+        --tag project=quickPizza `
+        --tag testType=K6-UI `
+        --tag release=setup `
+        --tag buildId=00000000
+    Write-Host "`nSample test completed. Check Grafana dashboards to see the results." -ForegroundColor Green
+}
+else {
+    Write-Host "Skipped sample test. You can run it later with:" -ForegroundColor Yellow
+    Write-Host "  docker exec -it k6 k6 run /tests/UI/uiSample.js --tag testid=K6-UI-quickPizzaSample --tag project=quickPizza --tag testType=K6-UI --tag release=setup --tag buildId=00000000" -ForegroundColor Cyan
+}
+
+Write-Host "`nYou can now run your k6 tests using .\testRunner.ps1" -ForegroundColor Green

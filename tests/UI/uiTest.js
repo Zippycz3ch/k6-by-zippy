@@ -3,9 +3,8 @@ import { takeScreenshot } from "/helpers/takeScreenshot.js";
 import { basicChecks } from "/helpers/basicChecks.js";
 
 const scenario = __ENV.SCENARIO;
-const testType = __ENV.testType;
 const project = __ENV.project;
-const configPath = `./${testType}/configs/${scenario}.json`;
+const configPath = `./configs/${scenario}.json`;
 const configRaw = open(configPath);
 const config = JSON.parse(configRaw);
 export const options = config;

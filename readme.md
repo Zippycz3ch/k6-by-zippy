@@ -20,8 +20,8 @@ Use the provided PowerShell script for hassle-free setup and configuration.
 Clone repository:
 
 ```sh
-git clone https://github.com/yourusername/k6-By-Zippy.git
-cd k6-By-Zippy
+git clone https://github.com/yourusername/k6-by-zippy
+cd k6-by-zippy
 ```
 
 From the repo root, run:
@@ -141,7 +141,7 @@ If you want to setup everything manually, start each container step by step as f
 7. Run your k6 tests
 
    ```sh
-   docker exec -it k6 k6 run /tests/UI/racom/homepage/homepage.js
+   docker exec -it k6 k6 run /tests/UI/quickPizza/homepage/homepage.js --tag testid=K6-UI-quickPizzaHomePageTest --tag project=quickPizza
    ```
 
 8. View live dashboards in Grafana

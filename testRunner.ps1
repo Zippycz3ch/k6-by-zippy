@@ -50,11 +50,11 @@ $project = Show-ChoicePrompt "Which project?" $projects
 
 # 3. Find test root and files
 $projectRoot = Join-Path $testTypeRoot $project
-$testFile = Join-Path $repoRoot "tests\test.js"
+$testFile = Join-Path $testTypeRoot "uiTest.js"
 $dataFile = Join-Path $projectRoot "data.json"
 
 if (-not (Test-Path $testFile)) {
-    Write-Host "test.js not found in tests folder"
+    Write-Host "uiTest.js not found in $testTypeRoot"
     exit 1
 }
 
@@ -133,7 +133,7 @@ if ($confirm -notin @("Y", "y")) {
 # 7. Run k6 for each URL
 $results = @()
 $counter = 1
-$containerPath = "/tests/test.js"
+$containerPath = "/tests/$testTypeFolder/uiTest.js"
 
 foreach ($urlData in $urlsToTest) {
     $testid = "$project-$($urlData.TestName)"
