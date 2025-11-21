@@ -17,10 +17,8 @@ After setup, you can run the test suite using the provided PowerShell script:
 Or you can run each test individually from the Docker folder. Update the tags to match with testRunner tags.
 
 ```sh
-docker exec -it k6 k6 run /tests/UI/hartmannb2c/produkty/produkty.js --tag testid=K6-UI-produkty --tag project=hartmannb2c
-```
-
 docker exec -it k6 k6 run /tests/UI/quickPizza/homepage/homepage.js --tag testid=K6-UI-quickPizzaHomePageTest --tag project=quickPizza
+```
 
 If you are runnign UI tests, folder screenshot will be created in root durring project setup.
 

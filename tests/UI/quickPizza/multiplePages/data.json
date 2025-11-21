@@ -1,0 +1,14 @@
+[
+  {
+    "urlPath": "/",
+    "testName": "home"
+  },
+  {
+    "urlPath": "/admin",
+    "testName": "admin"
+  },
+  {
+    "urlPath": "/login",
+    "testName": "login"
+  }
+]

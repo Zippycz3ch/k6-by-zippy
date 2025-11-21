@@ -13,10 +13,7 @@
       "vus": 1,
       "iterations": 1,
       "maxDuration": "5m",
-      "exec": "quickPizzaHomePageTest",
-      "tags": {
-        "testName": "quickPizzaHomePage"
-      },
+      "exec": "test",
       "options": {
         "browser": {
           "type": "chromium"

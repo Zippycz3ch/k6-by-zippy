@@ -5,13 +5,13 @@
     "browser_web_vital_fcp": ["p(90) < 1800"],
     "browser_web_vital_lcp": ["p(90) < 2500"],
     "browser_web_vital_ttfb": ["p(90) < 800"],
-    "browser_web_vital_cls": ["p(90) < 0.250"]
+    "browser_web_vital_fid": ["p(90) < 100"]
   },
   "scenarios": {
-    "1iter": {
+    "20iter": {
       "executor": "shared-iterations",
       "vus": 1,
-      "iterations": 1,
+      "iterations": 20,
       "maxDuration": "5m",
       "exec": "quickPizzaHomePageTest",
       "tags": {

@@ -24,9 +24,8 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 4,
+  "id": 0,
   "links": [],
-  "liveNow": false,
   "panels": [
     {
       "collapsed": false,
@@ -34,7 +33,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 1
+        "y": 0
       },
       "id": 29,
       "panels": [],
@@ -43,9 +42,9 @@
     },
     {
       "datasource": {
-          "type": "influxdb",
-          "uid": "P5697886F9CA74929"
-        },
+        "type": "influxdb",
+        "uid": "P5697886F9CA74929"
+      },
       "description": "First Contentful Paint (FCP) measures the time from when the user first navigated to the page to when any part of the page's content is rendered on the screen. For this metric, \"content\" refers to text, images (including background images), <svg> elements, or non-white <canvas> elements.",
       "fieldConfig": {
         "defaults": {
@@ -59,6 +58,7 @@
             "axisLabel": "",
             "axisPlacement": "right",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -75,6 +75,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -92,7 +93,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "#EAB839",
@@ -104,8 +105,7 @@
               }
             ]
           },
-          "unit": "ms",
-          "unitScale": true
+          "unit": "ms"
         },
         "overrides": []
       },
@@ -113,7 +113,7 @@
         "h": 21,
         "w": 12,
         "x": 0,
-        "y": 2
+        "y": 1
       },
       "id": 160,
       "maxDataPoints": 35000,
@@ -133,15 +133,15 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "datasource": {
-          "type": "influxdb",
-          "uid": "P5697886F9CA74929"
-        },
+            "type": "influxdb",
+            "uid": "P5697886F9CA74929"
+          },
           "hide": false,
-          "query": "from(bucket: \"k6\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r._measurement == \"browser_web_vital_fcp\" and\r\n    r._field == \"value\" and\r\n    r[\"group\"] != \"::setup\" and\r\n    r[\"branch\"] =~ /${branch:regex}/ and\r\n    r[\"release\"] =~ /${release:regex}/ and\r\n    r[\"buildId\"] =~ /${buildId:regex}/ and\r\n    r[\"testid\"] =~ /${testId:regex}/ and\r\n    r[\"project\"] =~ /${project:regex}/ and\r\n    r[\"scenario\"] =~ /${scenario:regex}/\r\n  )\r\n  |> filter(fn: (r) => exists r.uiFeature)\r\n  |> aggregateWindow(every: 1s, fn: mean, createEmpty: false)\r\n  |> group(columns: [\"uiFeature\"])\r\n  |> keep(columns: [\"_time\", \"_value\", \"uiFeature\"])\r\n  |> yield(name: \"fcp_by_uiFeature\")\r\n",
+          "query": "from(bucket: \"k6\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r._measurement == \"browser_web_vital_fcp\" and\r\n    r._field == \"value\" and\r\n    r[\"group\"] != \"::setup\" and\r\n    r[\"release\"] =~ /${release:regex}/ and\r\n    r[\"buildId\"] =~ /${buildId:regex}/ and\r\n    r[\"testName\"] =~ /${testName:regex}/ and\r\n    r[\"project\"] =~ /${project:regex}/\r\n  )\r\n  |> filter(fn: (r) => r[\"testType\"] == \"K6-UI\")\r\n  |> aggregateWindow(every: 1s, fn: (column, tables=<-) => quantile(tables: tables, column: column, q: 0.75), createEmpty: false)\r\n  |> group(columns: [\"testName\"])\r\n  |> keep(columns: [\"_time\", \"_value\", \"testName\"])\r\n  |> yield(name: \"p90_lcp_by_testName\")",
           "refId": "Response time"
         }
       ],
@@ -150,9 +150,9 @@
     },
     {
       "datasource": {
-          "type": "influxdb",
-          "uid": "P5697886F9CA74929"
-        },
+        "type": "influxdb",
+        "uid": "P5697886F9CA74929"
+      },
       "description": "LCP reports the render time of the largest image, text block, or video visible in the viewport, relative to when the user first navigated to the page.",
       "fieldConfig": {
         "defaults": {
@@ -166,6 +166,7 @@
             "axisLabel": "",
             "axisPlacement": "right",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -182,6 +183,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -199,7 +201,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "#EAB839",
@@ -211,8 +213,7 @@
               }
             ]
           },
-          "unit": "ms",
-          "unitScale": true
+          "unit": "ms"
         },
         "overrides": []
       },
@@ -220,7 +221,7 @@
         "h": 21,
         "w": 12,
         "x": 12,
-        "y": 2
+        "y": 1
       },
       "id": 145,
       "maxDataPoints": 35000,
@@ -240,15 +241,15 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "datasource": {
-          "type": "influxdb",
-          "uid": "P5697886F9CA74929"
-        },
+            "type": "influxdb",
+            "uid": "P5697886F9CA74929"
+          },
           "hide": false,
-          "query": "from(bucket: \"k6\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r._measurement == \"browser_web_vital_lcp\" and\r\n    r._field == \"value\" and\r\n    r[\"group\"] != \"::setup\" and\r\n    r[\"branch\"] =~ /${branch:regex}/ and\r\n    r[\"release\"] =~ /${release:regex}/ and\r\n    r[\"buildId\"] =~ /${buildId:regex}/ and\r\n    r[\"testid\"] =~ /${testId:regex}/ and\r\n    r[\"project\"] =~ /${project:regex}/ and\r\n    r[\"scenario\"] =~ /${scenario:regex}/\r\n  )\r\n  |> filter(fn: (r) => exists r.uiFeature)\r\n  |> aggregateWindow(every: 1s, fn: (column, tables=<-) => quantile(tables: tables, column: column, q: 0.75), createEmpty: false)\r\n  |> filter(fn: (r) => r._value >= 500.0)\r\n  |> group(columns: [\"uiFeature\"])\r\n  |> keep(columns: [\"_time\", \"_value\", \"uiFeature\"])\r\n  |> yield(name: \"p90_lcp_by_uiFeature\")\r\n",
+          "query": "from(bucket: \"k6\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r._measurement == \"browser_web_vital_lcp\" and\r\n    r._field == \"value\" and\r\n    r[\"group\"] != \"::setup\" and\r\n    r[\"release\"] =~ /${release:regex}/ and\r\n    r[\"buildId\"] =~ /${buildId:regex}/ and\r\n    r[\"testName\"] =~ /${testName:regex}/ and\r\n    r[\"project\"] =~ /${project:regex}/\r\n  )\r\n  |> filter(fn: (r) => r[\"testType\"] == \"K6-UI\")\r\n  |> aggregateWindow(every: 1s, fn: (column, tables=<-) => quantile(tables: tables, column: column, q: 0.75), createEmpty: false)\r\n  |> group(columns: [\"testName\"])\r\n  |> keep(columns: [\"_time\", \"_value\", \"testName\"])\r\n  |> yield(name: \"p90_lcp_by_testName\")",
           "refId": "Response time"
         }
       ],
@@ -257,9 +258,9 @@
     },
     {
       "datasource": {
-          "type": "influxdb",
-          "uid": "P5697886F9CA74929"
-        },
+        "type": "influxdb",
+        "uid": "P5697886F9CA74929"
+      },
       "description": "Cumulative Layout Shift (CLS) is a stable Core Web Vital metric. It's an important, user-centric metric for measuring visual stability because it helps quantify how often users experience unexpected layout shifts. A low CLS helps ensure that the page is delightful.",
       "fieldConfig": {
         "defaults": {
@@ -273,6 +274,7 @@
             "axisLabel": "",
             "axisPlacement": "right",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -289,6 +291,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -306,7 +309,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "#EAB839",
@@ -317,9 +320,7 @@
                 "value": 250
               }
             ]
-          },
-          "unit": "ms",
-          "unitScale": true
+          }
         },
         "overrides": []
       },
@@ -327,7 +328,7 @@
         "h": 21,
         "w": 12,
         "x": 0,
-        "y": 23
+        "y": 22
       },
       "id": 162,
       "maxDataPoints": 35000,
@@ -347,15 +348,15 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "datasource": {
-          "type": "influxdb",
-          "uid": "P5697886F9CA74929"
-        },
+            "type": "influxdb",
+            "uid": "P5697886F9CA74929"
+          },
           "hide": false,
-          "query": "from(bucket: \"k6\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r._measurement == \"browser_web_vital_cls\" and\r\n    r._field == \"value\" and\r\n    r[\"group\"] != \"::setup\" and\r\n    r[\"branch\"] =~ /${branch:regex}/ and\r\n    r[\"release\"] =~ /${release:regex}/ and\r\n    r[\"buildId\"] =~ /${buildId:regex}/ and\r\n    r[\"testid\"] =~ /${testId:regex}/ and\r\n    r[\"project\"] =~ /${project:regex}/ and\r\n    r[\"scenario\"] =~ /${scenario:regex}/\r\n  )\r\n  |> filter(fn: (r) => exists r.uiFeature)\r\n  |> aggregateWindow(every: 1s, fn: mean, createEmpty: false)\r\n  |> group(columns: [\"uiFeature\"])\r\n  |> keep(columns: [\"_time\", \"_value\", \"uiFeature\"])\r\n  |> yield(name: \"fid_by_uiFeature\")\r\n",
+          "query": "from(bucket: \"k6\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r._measurement == \"browser_web_vital_cls\" and\r\n    r._field == \"value\" and\r\n    r[\"group\"] != \"::setup\" and\r\n    r[\"release\"] =~ /${release:regex}/ and\r\n    r[\"buildId\"] =~ /${buildId:regex}/ and\r\n    r[\"testName\"] =~ /${testName:regex}/ and\r\n    r[\"project\"] =~ /${project:regex}/\r\n  )\r\n  |> filter(fn: (r) => r[\"testType\"] == \"K6-UI\")\r\n  |> aggregateWindow(every: 1s, fn: mean, createEmpty: false)\r\n  |> group(columns: [\"testName\"])\r\n  |> keep(columns: [\"_time\", \"_value\", \"testName\"])\r\n  |> yield(name: \"cls_by_testName\")",
           "refId": "Response time"
         }
       ],
@@ -364,9 +365,9 @@
     },
     {
       "datasource": {
-          "type": "influxdb",
-          "uid": "P5697886F9CA74929"
-        },
+        "type": "influxdb",
+        "uid": "P5697886F9CA74929"
+      },
       "description": "TTFB is a metric that measures the time between the request for a resource and when the first byte of a response begins to arrive.",
       "fieldConfig": {
         "defaults": {
@@ -380,6 +381,7 @@
             "axisLabel": "",
             "axisPlacement": "right",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -396,6 +398,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -413,7 +416,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "#EAB839",
@@ -425,8 +428,7 @@
               }
             ]
           },
-          "unit": "ms",
-          "unitScale": true
+          "unit": "ms"
         },
         "overrides": []
       },
@@ -434,7 +436,7 @@
         "h": 21,
         "w": 12,
         "x": 12,
-        "y": 23
+        "y": 22
       },
       "id": 161,
       "maxDataPoints": 35000,
@@ -454,15 +456,15 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "datasource": {
-          "type": "influxdb",
-          "uid": "P5697886F9CA74929"
-        },
+            "type": "influxdb",
+            "uid": "P5697886F9CA74929"
+          },
           "hide": false,
-          "query": "from(bucket: \"k6\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r._measurement == \"browser_web_vital_ttfb\" and\r\n    r._field == \"value\" and\r\n    r[\"group\"] != \"::setup\" and\r\n    r[\"branch\"] =~ /${branch:regex}/ and\r\n    r[\"release\"] =~ /${release:regex}/ and\r\n    r[\"buildId\"] =~ /${buildId:regex}/ and\r\n    r[\"testid\"] =~ /${testId:regex}/ and\r\n    r[\"project\"] =~ /${project:regex}/ and\r\n    r[\"scenario\"] =~ /${scenario:regex}/\r\n  )\r\n  |> filter(fn: (r) => exists r.uiFeature)\r\n  |> aggregateWindow(every: 1s, fn: mean, createEmpty: false)\r\n  |> group(columns: [\"uiFeature\"])\r\n  |> keep(columns: [\"_time\", \"_value\", \"uiFeature\"])\r\n  |> yield(name: \"ttfb_by_uiFeature\")\r\n",
+          "query": "from(bucket: \"k6\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r._measurement == \"browser_web_vital_ttfb\" and\r\n    r._field == \"value\" and\r\n    r[\"group\"] != \"::setup\" and\r\n    r[\"project\"] =~ /${project:regex}/ and\r\n    r[\"release\"] =~ /${release:regex}/ and\r\n    r[\"buildId\"] =~ /${buildId:regex}/ and\r\n    r[\"testName\"] =~ /${testName:regex}/\r\n  )\r\n  |> filter(fn: (r) => r[\"testType\"] == \"K6-UI\")\r\n  |> aggregateWindow(every: 1s, fn: mean, createEmpty: false)\r\n  |> group(columns: [\"testName\"])\r\n  |> keep(columns: [\"_time\", \"_value\", \"testName\"])\r\n  |> yield(name: \"ttfb_by_testName\")",
           "refId": "Response time"
         }
       ],
@@ -471,9 +473,9 @@
     },
     {
       "datasource": {
-          "type": "influxdb",
-          "uid": "P5697886F9CA74929"
-        },
+        "type": "influxdb",
+        "uid": "P5697886F9CA74929"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -485,6 +487,9 @@
               "type": "auto"
             },
             "filterable": true,
+            "footer": {
+              "reducers": []
+            },
             "inspect": false
           },
           "mappings": [],
@@ -492,7 +497,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               },
               {
                 "color": "#EAB839",
@@ -514,6 +520,18 @@
                 "value": 286
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Failures"
+            },
+            "properties": [
+              {
+                "id": "custom.footer.reducers",
+                "value": ["sum"]
+              }
+            ]
           }
         ]
       },
@@ -521,17 +539,11 @@
         "h": 24,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 43
       },
       "id": 163,
       "options": {
         "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": ["Failures"],
-          "reducer": ["sum"],
-          "show": true
-        },
         "frameIndex": 0,
         "showHeader": true,
         "sortBy": [
@@ -541,14 +553,14 @@
           }
         ]
       },
-      "pluginVersion": "12.0.1",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "datasource": {
-          "type": "influxdb",
-          "uid": "P5697886F9CA74929"
-        },
-          "query": "base = from(bucket: \"k6\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    (r._measurement == \"browser_web_vital_fcp\" or\r\n     r._measurement == \"browser_web_vital_fid\" or\r\n     r._measurement == \"browser_web_vital_lcp\" or\r\n     r._measurement == \"browser_web_vital_ttfb\") and\r\n    r._field == \"value\" and\r\n    r[\"group\"] != \"::setup\" and\r\n    r[\"branch\"] =~ /${branch:regex}/ and\r\n    r[\"release\"] =~ /${release:regex}/ and\r\n    r[\"buildId\"] =~ /${buildId:regex}/ and\r\n    r[\"testid\"] =~ /${testId:regex}/ and\r\n    r[\"project\"] =~ /${project:regex}/ and\r\n    r[\"scenario\"] =~ /${scenario:regex}/\r\n  )\r\n  |> filter(fn: (r) => exists r.uiFeature)\r\n  |> group(columns: [\"_measurement\", \"uiFeature\"])\r\n\r\nmean = base\r\n  |> mean()\r\n  |> map(fn: (r) => ({r with \"avg\": r._value}))\r\n  |> drop(columns: [\"_value\", \"_start\", \"_stop\", \"_field\"])\r\n\r\np90 = base\r\n  |> quantile(q: 0.90, method: \"exact_mean\")\r\n  |> map(fn: (r) => ({r with \"p90\": r._value}))\r\n  |> drop(columns: [\"_value\", \"_start\", \"_stop\", \"_field\"])\r\n\r\np95 = base\r\n  |> quantile(q: 0.95, method: \"exact_mean\")\r\n  |> map(fn: (r) => ({r with \"p95\": r._value}))\r\n  |> drop(columns: [\"_value\", \"_start\", \"_stop\", \"_field\"])\r\n\r\nmin = base\r\n  |> min(column: \"_value\")\r\n  |> map(fn: (r) => ({r with \"min\": r._value}))\r\n  |> drop(columns: [\"_value\", \"_start\", \"_stop\", \"_field\"])\r\n\r\nmax = base\r\n  |> max(column: \"_value\")\r\n  |> map(fn: (r) => ({r with \"max\": r._value}))\r\n  |> drop(columns: [\"_value\", \"_start\", \"_stop\", \"_field\"])\r\n\r\njoin1 = join(tables: {mean: mean, p90: p90}, on: [\"_measurement\", \"uiFeature\"])\r\njoin2 = join(tables: {joined: join1, p95: p95}, on: [\"_measurement\", \"uiFeature\"])\r\njoin3 = join(tables: {joined: join2, min: min}, on: [\"_measurement\", \"uiFeature\"])\r\nfinal = join(tables: {joined: join3, max: max}, on: [\"_measurement\", \"uiFeature\"])\r\n\r\nfinal\r\n  |> rename(columns: {\r\n    _measurement: \"Metric\",\r\n    uiFeature: \"UI Feature\",\r\n    avg: \"Avg\",\r\n    p90: \"p(90)\",\r\n    p95: \"p(95)\",\r\n    min: \"Min\",\r\n    max: \"Max\"\r\n  })\r\n  |> keep(columns: [\"UI Feature\", \"Metric\", \"Avg\", \"p(90)\", \"p(95)\", \"Min\", \"Max\"])\r\n  |> group(columns: [])\r\n  |> yield(name: \"WebVitals\")\r\n",
+            "type": "influxdb",
+            "uid": "P5697886F9CA74929"
+          },
+          "query": "base = from(bucket: \"k6\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    (r._measurement == \"browser_web_vital_fcp\" or\r\n     r._measurement == \"browser_web_vital_fid\" or\r\n     r._measurement == \"browser_web_vital_lcp\" or\r\n     r._measurement == \"browser_web_vital_ttfb\") and\r\n    r._field == \"value\" and\r\n    r[\"group\"] != \"::setup\" and\r\n    r[\"release\"] =~ /${release:regex}/ and\r\n    r[\"buildId\"] =~ /${buildId:regex}/ and\r\n    r[\"testName\"] =~ /${testName:regex}/ and\r\n    r[\"project\"] =~ /${project:regex}/\r\n  )\r\n  |> filter(fn: (r) => r[\"testType\"] == \"K6-UI\")\r\n  |> group(columns: [\"_measurement\", \"testName\"])\r\n\r\nmean = base\r\n  |> mean()\r\n  |> map(fn: (r) => ({r with \"avg\": r._value}))\r\n  |> drop(columns: [\"_value\", \"_start\", \"_stop\", \"_field\"])\r\n\r\np90 = base\r\n  |> quantile(q: 0.90, method: \"exact_mean\")\r\n  |> map(fn: (r) => ({r with \"p90\": r._value}))\r\n  |> drop(columns: [\"_value\", \"_start\", \"_stop\", \"_field\"])\r\n\r\np95 = base\r\n  |> quantile(q: 0.95, method: \"exact_mean\")\r\n  |> map(fn: (r) => ({r with \"p95\": r._value}))\r\n  |> drop(columns: [\"_value\", \"_start\", \"_stop\", \"_field\"])\r\n\r\nmin = base\r\n  |> min(column: \"_value\")\r\n  |> map(fn: (r) => ({r with \"min\": r._value}))\r\n  |> drop(columns: [\"_value\", \"_start\", \"_stop\", \"_field\"])\r\n\r\nmax = base\r\n  |> max(column: \"_value\")\r\n  |> map(fn: (r) => ({r with \"max\": r._value}))\r\n  |> drop(columns: [\"_value\", \"_start\", \"_stop\", \"_field\"])\r\n\r\njoin1 = join(tables: {mean: mean, p90: p90}, on: [\"_measurement\", \"testName\"])\r\njoin2 = join(tables: {joined: join1, p95: p95}, on: [\"_measurement\", \"testName\"])\r\njoin3 = join(tables: {joined: join2, min: min}, on: [\"_measurement\", \"testName\"])\r\nfinal = join(tables: {joined: join3, max: max}, on: [\"_measurement\", \"testName\"])\r\n\r\nfinal\r\n  |> rename(columns: {\r\n    _measurement: \"Metric\",\r\n    testName: \"Test Name\",\r\n    avg: \"Avg\",\r\n    p90: \"p(90)\",\r\n    p95: \"p(95)\",\r\n    min: \"Min\",\r\n    max: \"Max\"\r\n  })\r\n  |> keep(columns: [\"Test Name\", \"Metric\", \"Avg\", \"p(90)\", \"p(95)\", \"Min\", \"Max\"])\r\n  |> group(columns: [])\r\n  |> yield(name: \"WebVitals\")",
           "refId": "A"
         }
       ],
@@ -577,18 +589,17 @@
       "type": "table"
     }
   ],
-  "refresh": "1h",
-  "schemaVersion": 39,
+  "preload": false,
+  "refresh": "auto",
+  "schemaVersion": 42,
   "tags": [],
   "templating": {
     "list": [
       {
         "allowCustomValue": false,
         "current": {
-          "isNone": true,
-          "selected": false,
-          "text": "None",
-          "value": ""
+          "text": ["quickPizza"],
+          "value": ["quickPizza"]
         },
         "datasource": {
           "type": "influxdb",
@@ -596,7 +607,6 @@
         },
         "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"project\")",
         "description": "",
-        "hide": 0,
         "includeAll": true,
         "label": "Project",
         "multi": true,
@@ -605,8 +615,6 @@
         "query": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"project\")",
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       },
       {
@@ -619,12 +627,11 @@
           "type": "influxdb",
           "uid": "P5697886F9CA74929"
         },
-        "definition": "import \"influxdata/influxdb/schema\"\r\nimport \"strings\"\r\n\r\nschema.tagValues(\r\n  bucket: v.defaultBucket,\r\n  tag: \"testid\",\r\n  predicate: (r) => r.project =~ /^${project:regex}$/\r\n)\r\n |> filter(fn: (r) => strings.hasPrefix(v: r._value, prefix: \"K6-UI-\"))\r\n",
-        "hide": 0,
+        "definition": "import \"influxdata/influxdb/schema\"\r\n\r\nschema.tagValues(\r\n  bucket: v.defaultBucket,\r\n  tag: \"testName\",\r\n  predicate: (r) => r.project =~ /^${project:regex}$/\r\n)",
         "includeAll": true,
-        "label": "Test",
+        "label": "Test Name",
         "multi": true,
-        "name": "testId",
+        "name": "testName",
         "options": [],
         "query": {
           "0": "i",
@@ -720,87 +727,30 @@
           "90": "d",
           "91": "\"",
           "92": ")",
-          "query": "import \"influxdata/influxdb/schema\"\r\nimport \"strings\"\r\n\r\nschema.tagValues(\r\n  bucket: v.defaultBucket,\r\n  tag: \"testid\",\r\n  predicate: (r) => r.project =~ /^${project:regex}$/\r\n)\r\n |> filter(fn: (r) => strings.hasPrefix(v: r._value, prefix: \"K6-UI-\"))\r\n"
+          "query": "import \"influxdata/influxdb/schema\"\r\n\r\nschema.tagValues(\r\n  bucket: v.defaultBucket,\r\n  tag: \"testName\",\r\n  predicate: (r) => r.project =~ /^${project:regex}$/\r\n)"
         },
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       },
       {
         "allowCustomValue": false,
         "current": {
-          "text": "",
-          "value": ""
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": {
           "type": "influxdb",
           "uid": "P5697886F9CA74929"
         },
         "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"scenario\")",
-        "hide": 0,
         "includeAll": true,
         "label": "Config",
-        "multi": false,
         "name": "scenario",
         "options": [],
         "query": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"scenario\")",
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
-      },
-      {
-        "current": {
-          "text": "All",
-          "value": ["$__all"]
-        },
-        "datasource": {
-          "type": "influxdb",
-          "uid": "P5697886F9CA74929"
-        },
-        "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"branch\")",
-        "description": "",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Branch",
-        "multi": true,
-        "name": "branch",
-        "options": [],
-        "query": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"branch\")",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
-      },
-      {
-        "current": {
-          "selected": true,
-          "text": ["All"],
-          "value": ["$__all"]
-        },
-        "datasource": {
-          "type": "datasource",
-          "uid": "grafana"
-        },
-        "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"release\")",
-        "description": "",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Release",
-        "multi": true,
-        "name": "release",
-        "options": [],
-        "query": {
-          "query": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"release\")"
-        },
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       },
       {
@@ -812,35 +762,167 @@
           "type": "influxdb",
           "uid": "P5697886F9CA74929"
         },
-        "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"buildId\")",
+        "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"branch\")",
         "description": "",
-        "hide": 0,
         "includeAll": true,
-        "label": "Build ID",
-        "multi": false,
-        "name": "buildId",
+        "label": "Branch",
+        "multi": true,
+        "name": "branch",
         "options": [],
-        "query": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"buildId\")",
+        "query": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"branch\")",
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "influxdb",
+          "uid": "P5697886F9CA74929"
+        },
+        "definition": "import \"influxdata/influxdb/schema\"\r\n\r\nschema.tagValues(\r\n  bucket: v.defaultBucket,\r\n  tag: \"release\",\r\n  predicate: (r) => r.project =~ /^${project:regex}$/\r\n)",
+        "description": "",
+        "includeAll": true,
+        "label": "Release",
+        "multi": true,
+        "name": "release",
+        "options": [],
+        "query": {
+          "query": "import \"influxdata/influxdb/schema\"\r\n\r\nschema.tagValues(\r\n  bucket: v.defaultBucket,\r\n  tag: \"release\",\r\n  predicate: (r) => r.project =~ /^${project:regex}$/\r\n)"
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "allowCustomValue": false,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "influxdb",
+          "uid": "P5697886F9CA74929"
+        },
+        "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"buildId\")",
+        "description": "",
+        "includeAll": true,
+        "label": "Build ID",
+        "name": "buildId",
+        "options": [],
+        "query": {
+          "0": "i",
+          "1": "m",
+          "2": "p",
+          "3": "o",
+          "4": "r",
+          "5": "t",
+          "6": " ",
+          "7": "\"",
+          "8": "i",
+          "9": "n",
+          "10": "f",
+          "11": "l",
+          "12": "u",
+          "13": "x",
+          "14": "d",
+          "15": "a",
+          "16": "t",
+          "17": "a",
+          "18": "/",
+          "19": "i",
+          "20": "n",
+          "21": "f",
+          "22": "l",
+          "23": "u",
+          "24": "x",
+          "25": "d",
+          "26": "b",
+          "27": "/",
+          "28": "s",
+          "29": "c",
+          "30": "h",
+          "31": "e",
+          "32": "m",
+          "33": "a",
+          "34": "\"",
+          "35": "\r",
+          "36": "\n",
+          "37": "s",
+          "38": "c",
+          "39": "h",
+          "40": "e",
+          "41": "m",
+          "42": "a",
+          "43": ".",
+          "44": "t",
+          "45": "a",
+          "46": "g",
+          "47": "V",
+          "48": "a",
+          "49": "l",
+          "50": "u",
+          "51": "e",
+          "52": "s",
+          "53": "(",
+          "54": "b",
+          "55": "u",
+          "56": "c",
+          "57": "k",
+          "58": "e",
+          "59": "t",
+          "60": ":",
+          "61": " ",
+          "62": "v",
+          "63": ".",
+          "64": "d",
+          "65": "e",
+          "66": "f",
+          "67": "a",
+          "68": "u",
+          "69": "l",
+          "70": "t",
+          "71": "B",
+          "72": "u",
+          "73": "c",
+          "74": "k",
+          "75": "e",
+          "76": "t",
+          "77": ",",
+          "78": " ",
+          "79": "t",
+          "80": "a",
+          "81": "g",
+          "82": ":",
+          "83": " ",
+          "84": "\"",
+          "85": "b",
+          "86": "u",
+          "87": "i",
+          "88": "l",
+          "89": "d",
+          "90": "I",
+          "91": "d",
+          "92": "\"",
+          "93": ")",
+          "query": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"buildId\")"
+        },
+        "refresh": 1,
+        "regex": "",
         "type": "query"
       }
     ]
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-15m",
     "to": "now"
   },
-  "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
   "timezone": "",
   "title": "K6 - UI - Live",
-  "uid": "xe4ngk2kay9msw",
-  "version": 1,
-  "weekStart": ""
+  "uid": "xe4ngk2kay9msx",
+  "version": 26
 }
-
-
-
