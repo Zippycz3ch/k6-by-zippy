@@ -2,6 +2,8 @@
 
 This repository provides a complete local environment for performance testing using Grafana k6, InfluxDB v2.x and Grafana dashboards/
 
+Change your passwords if you use this as non local setup!
+
 ---
 
 ## Running Tests
@@ -17,7 +19,10 @@ Or you can run each test individually from the Docker folder. Update the tags to
 ```sh
 docker exec -it k6 k6 run /tests/UI/hartmannb2c/produkty/produkty.js --tag testid=K6-UI-produkty --tag project=hartmannb2c
 ```
-If you are runnign UI tests, folder screenshot will be created in root durring project setup. 
+
+docker exec -it k6 k6 run /tests/UI/quickPizza/homepage/homepage.js --tag testid=K6-UI-quickPizzaHomePageTest --tag project=quickPizza
+
+If you are runnign UI tests, folder screenshot will be created in root durring project setup.
 
 ## Quick Automated Setup (Recommended)
 
@@ -28,7 +33,6 @@ From the repo root, run:
 ```sh
 ./setup-k6custom.ps1
 ```
-
 
 This script will:
 
@@ -53,7 +57,7 @@ Grafana default login:
 
 ---
 
-## Manual Setup (if you can't run the script)
+## Manual Setup
 
 1. Start and initialize InfluxDB
 
@@ -150,8 +154,6 @@ Grafana default login:
   ```
 
 ---
-
-
 
 ## Credits
 
