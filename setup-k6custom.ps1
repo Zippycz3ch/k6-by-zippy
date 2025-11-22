@@ -52,7 +52,7 @@ function Read-RequiredInput($Prompt) {
 Write-Host "`n==== k6custom Performance Testing Stack Setup ====" -ForegroundColor Cyan
 
 # 1. Check required files/directories
-Write-Host "`n[1/8] Checking for required files and directories..."
+Write-Host "`n[1/9] Checking for required files and directories..."
 
 Test-RequiredFile "./docker/Dockerfile" "Dockerfile"
 Test-RequiredFile "./docker/grafana/provisioning/datasources/influxdb.yml" "Grafana InfluxDB provisioning file"
@@ -69,14 +69,14 @@ Write-Host "  - Found Grafana InfluxDB provisioning at ./docker/grafana/provisio
 Write-Host "  - Found $($jsonPaths.Count) .json dashboard file(s) under ./docker/grafana/dashboards/"
 
 # 2. Start only InfluxDB container
-Write-Host "`n[2/8] Starting InfluxDB container..." -ForegroundColor Yellow
+Write-Host "`n[2/9] Starting InfluxDB container..." -ForegroundColor Yellow
 Push-Location "./docker"
 docker compose up -d influxdb
 Pop-Location
 Write-Host "InfluxDB container started." -ForegroundColor Green
 
 # 3. Onboarding and collecting credentials
-Write-Host "`n[3/8] Please complete onboarding in InfluxDB."
+Write-Host "`n[3/9] Please complete onboarding in InfluxDB."
 Write-Host "   For automated setup, use these default credentials:" -ForegroundColor Yellow
 Write-Host "      Username:     k6user"      -ForegroundColor Yellow
 Write-Host "      Password:     k6password"  -ForegroundColor Yellow
@@ -97,7 +97,7 @@ $token = Read-RequiredInput "Paste your InfluxDB Admin Token (required):"
 Write-Host "`nNow, in the InfluxDB wizard, click `"Quick Start`" to finish onboarding."
 
 # 4. Update Dockerfile and influxdb.yml
-Write-Host "`n[4/8] Updating Dockerfile and influxdb.yml with your values..."
+Write-Host "`n[4/9] Updating Dockerfile and influxdb.yml with your values..."
 
 $dockerfilePath = "./docker/Dockerfile"
 Update-FileContent -Path $dockerfilePath -Search "K6_INFLUXDB_TOKEN=.*?\\$" -Replace "K6_INFLUXDB_TOKEN=$token \"
@@ -108,21 +108,21 @@ Update-FileContent -Path $influxymlPath -Search "(token:).*" -Replace "`$1 $toke
 Write-Host "  - influxdb.yml updated." -ForegroundColor Green
 
 # 5. Build k6 image
-Write-Host "`n[5/8] Building your custom k6 Docker image..."
+Write-Host "`n[5/9] Building your custom k6 Docker image..."
 Push-Location "./docker"
 docker build -t custom-k6 .
 Pop-Location
 Write-Host "Custom k6 image built." -ForegroundColor Green
 
 # 6. Start the whole stack
-Write-Host "`n[6/8] Starting the full stack (InfluxDB, Grafana, QuickPizza, k6)..." -ForegroundColor Yellow
+Write-Host "`n[6/9] Starting the full stack (InfluxDB, Grafana, k6)..." -ForegroundColor Yellow
 Push-Location "./docker"
 docker compose up -d
 Pop-Location
 Write-Host "All containers started." -ForegroundColor Green
 
 # 7. Grafana UID step (all dashboard .json)
-Write-Host "`n[7/8] Grafana setup required: Data source UID fix" 
+Write-Host "`n[7/9] Grafana setup required: Data source UID fix" 
 Write-Host "   - Grafana is now running at http://localhost:3000"       -ForegroundColor Yellow
 Write-Host "   - Log in with username: admin / password: admin"         -ForegroundColor Yellow
 Write-Host "   - Go to Connections > Data sources > InfluxDB."          -ForegroundColor Red
@@ -142,13 +142,12 @@ foreach ($jsonPath in $jsonPaths) {
 }
 
 # 8. Restart all
-Write-Host "`n[8/8] Restarting the stack to apply changes..."
+Write-Host "`n[8/9] Restarting the stack to apply changes..."
 Push-Location "./docker"
 docker compose down
 docker compose up -d
 Pop-Location
 Write-Host "Stack restarted." -ForegroundColor Green
-Write-Host "`nSetup complete!" -ForegroundColor Green
 
 # 9. Run sample test
 Write-Host "`n[9/9] Running sample UI test to verify setup..."
