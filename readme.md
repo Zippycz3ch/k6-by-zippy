@@ -1,6 +1,6 @@
 # k6custom Performance Testing Stack
 
-This repository provides a complete local environment for UI performance testing using Grafana k6, InfluxDB v2.x and Grafana dashboards/
+This repository provides a complete local environment for UI performance testing using Grafana k6, InfluxDB v2.x and Grafana dashboards.
 
 Change your passwords if you use this as non local setup!
 
@@ -20,7 +20,7 @@ Use the provided PowerShell script for hassle-free setup and configuration.
 Clone repository:
 
 ```sh
-git clone https://github.com/yourusername/k6-by-zippy
+git clone [https://github.com/yourusername/k6-by-zippy](https://github.com/Zippycz3ch/k6-by-zippy)
 cd k6-by-zippy
 ```
 
