@@ -20,7 +20,7 @@ Use the provided PowerShell script for hassle-free setup and configuration.
 Clone repository:
 
 ```sh
-git clone [https://github.com/yourusername/k6-by-zippy](https://github.com/Zippycz3ch/k6-by-zippy)
+git clone https://github.com/yourusername/k6-by-zippy
 cd k6-by-zippy
 ```
 
