@@ -1,9 +1,8 @@
-import { prepareUI } from "/helpers/prepareUI.js";
-import { takeScreenshot } from "/helpers/takeScreenshot.js";
-import { basicChecks } from "/helpers/basicChecks.js";
+import { prepareUI } from "/helpers/UI/prepareUI.js";
+import { takeScreenshot } from "/helpers/UI/takeScreenshot.js";
+import { basicChecks } from "/helpers/UI/basicChecks.js";
 
 const scenario = __ENV.SCENARIO;
-const project = __ENV.project;
 const configPath = `./configs/${scenario}.json`;
 const configRaw = open(configPath);
 const config = JSON.parse(configRaw);

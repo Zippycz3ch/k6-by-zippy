@@ -1,6 +1,6 @@
-import { prepareUI } from "/helpers/prepareUI.js";
-import { takeScreenshot } from "/helpers/takeScreenshot.js";
-import { basicChecks } from "/helpers/basicChecks.js";
+import { prepareUI } from "/helpers/UI/prepareUI.js";
+import { takeScreenshot } from "/helpers/UI/takeScreenshot.js";
+import { basicChecks } from "/helpers/UI/basicChecks.js";
 
 export const options = {
   setupTimeout: "1m",
@@ -15,7 +15,7 @@ export const options = {
     default: {
       executor: "shared-iterations",
       vus: 1,
-      iterations: 1,
+      iterations: 10,
       maxDuration: "5m",
       exec: "test",
       options: {
