@@ -59,7 +59,7 @@ Grafana:
 
 ## Running Tests
 
-After setup, you can run the test suite using the provided PowerShell script:
+After setup, you can run the UI data driven tests using the provided PowerShell script:
 
 ```sh
 ./testsRunner.ps1
@@ -70,6 +70,8 @@ Or you can run each test individually from the Docker folder. Update the tags to
 ```sh
 docker exec -it k6 k6 run /tests/UI/uiSample.js --tag testName=K6-UI-uiSample --tag project=uiSample --tag testType=K6-UI --tag release=dev --tag buildId=12345678
 ```
+
+Open [http://localhost:3000](http://localhost:3000) (Grafana).
 
 ## Manual Setup
 
