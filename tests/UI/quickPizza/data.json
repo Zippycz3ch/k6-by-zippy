@@ -9,6 +9,6 @@
   },
   {
     "url": "https://quickpizza.grafana.com/login",
-    "testName": "login"
+    "testName": "loginPage"
   }
 ]
