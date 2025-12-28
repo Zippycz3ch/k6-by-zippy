@@ -1,0 +1,14 @@
+[
+  {
+    "url": "https://quickpizza.grafana.com/api/pizza",
+    "testName": "getPizzaRecommendation"
+  },
+  {
+    "url": "https://quickpizza.grafana.com/api/ingredients/topping",
+    "testName": "getIngredients"
+  },
+  {
+    "url": "https://quickpizza.grafana.com/api/doughs",
+    "testName": "getDoughs"
+  }
+]

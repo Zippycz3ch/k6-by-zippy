@@ -61,8 +61,8 @@ if [ ! -d "$test_type_root" ]; then
 fi
 
 if [ "$test_type_folder" == "API" ]; then
-    test_file="$test_type_root/test.ts"
-    data_file="$test_type_root/data.json"
+    test_file="$test_type_root/apiTest.ts"
+    data_file="$test_type_root/quickPizza/data.json"
 else
     test_file="$test_type_root/uiTest.js"
     data_file="$test_type_root/quickPizza/data.json"
@@ -145,7 +145,7 @@ fi
 declare -a exit_codes
 counter=1
 if [ "$test_type_folder" == "API" ]; then
-    container_path="/tests/$test_type_folder/test.ts"
+    container_path="/tests/$test_type_folder/apiTest.ts"
 else
     container_path="/tests/$test_type_folder/uiTest.js"
 fi

@@ -41,8 +41,8 @@ if (-not (Test-Path $testTypeRoot)) {
 }
 
 if ($testTypeFolder -eq "API") {
-    $testFile = Join-Path $testTypeRoot "test.ts"
-    $dataFile = Join-Path $testTypeRoot "data.json"
+    $testFile = Join-Path $testTypeRoot "apiTest.ts"
+    $dataFile = Join-Path $testTypeRoot "quickPizza\data.json"
 } else {
     $testFile = Join-Path $testTypeRoot "uiTest.js"
     $dataFile = Join-Path $testTypeRoot "quickPizza\data.json"
@@ -129,7 +129,7 @@ if ($confirm -notin @("Y", "y")) {
 $results = @()
 $counter = 1
 if ($testTypeFolder -eq "API") {
-    $containerPath = "/tests/$testTypeFolder/test.ts"
+    $containerPath = "/tests/$testTypeFolder/apiTest.ts"
 } else {
     $containerPath = "/tests/$testTypeFolder/uiTest.js"
 }

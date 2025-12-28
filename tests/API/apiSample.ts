@@ -1,13 +1,27 @@
 import { sleep } from 'k6'
-import { options } from './config.ts'
-import { createClient, BASE_URL } from './client.ts'
+import { createClient, BASE_URL } from './quickPizza/client.ts'
 import { validateResponse } from '/helpers/API/helpers.ts'
 
-export { options }
+export const options = {
+    thresholds: {
+        checks: ['rate>0.99'],
+        http_req_duration: ['p(95)<500'],
+        http_req_failed: ['rate<0.01'],
+    },
+    scenarios: {
+        default: {
+            executor: 'shared-iterations',
+            vus: 1,
+            iterations: 10,
+            maxDuration: '5m',
+            exec: 'test',
+        },
+    },
+}
 
 const client = createClient()
 
-export default function () {
+export function test() {
     const { response, data } = client.getPizzaRecommendation({
         maxCaloriesPerSlice: 800,
         mustBeVegetarian: true,
@@ -20,11 +34,6 @@ export default function () {
 
     if (checks) {
         console.log(`✓ Got pizza: "${data.pizza?.name}"`)
-        //     console.log(`  - Dough: ${data.pizza?.dough?.name}`)
-        //     console.log(`  - Ingredients: ${data.pizza?.ingredients?.map(i => i.name).join(', ')}`)
-        //     console.log(`  - Tool: ${data.pizza?.tool}`)
-        //     console.log(`  - Calories: ${data.calories} per slice`)
-        //     console.log(`  - Vegetarian: ${data.vegetarian}`)
     } else {
         console.error('✗ Pizza recommendation failed checks')
     }
@@ -33,10 +42,10 @@ export default function () {
 }
 
 export function setup() {
-    console.log('🍕 Starting QuickPizza API Load Test')
+    console.log('🍕 Starting QuickPizza API Sample Test')
     console.log(`Base URL: ${BASE_URL}`)
 }
 
 export function teardown() {
-    console.log('✅ Test completed')
+    console.log('✅ Sample test completed')
 }
