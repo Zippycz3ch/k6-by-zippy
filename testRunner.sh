@@ -48,9 +48,10 @@ else
     test_type="K6-UI"
 fi
 
+project="quickPizza"
 echo -e "Selected test type: $test_type\n"
 
-# 2. Find available projects
+# 2. Find test root and files
 repo_root="$(cd "$(dirname "$0")" && pwd)"
 test_type_root="$repo_root/tests/$test_type_folder"
 
@@ -59,31 +60,25 @@ if [ ! -d "$test_type_root" ]; then
     exit 1
 fi
 
-mapfile -t projects < <(find "$test_type_root" -mindepth 1 -maxdepth 1 -type d ! -name "configs" -exec basename {} \;)
-
-if [ ${#projects[@]} -eq 0 ]; then
-    echo "No projects found in $test_type_root"
-    exit 1
+if [ "$test_type_folder" == "API" ]; then
+    test_file="$test_type_root/test.ts"
+    data_file="$test_type_root/data.json"
+else
+    test_file="$test_type_root/uiTest.js"
+    data_file="$test_type_root/quickPizza/data.json"
 fi
 
-project=$(show_choice_prompt "Which project?" "${projects[@]}")
-
-# 3. Find test root and files
-project_root="$test_type_root/$project"
-test_file="$test_type_root/uiTest.js"
-data_file="$project_root/data.json"
-
 if [ ! -f "$test_file" ]; then
-    echo "uiTest.js not found in $test_type_root"
+    echo "Test file not found: $test_file"
     exit 1
 fi
 
 if [ ! -f "$data_file" ]; then
-    echo "data.json not found in $project_root"
+    echo "data.json not found: $data_file"
     exit 1
 fi
 
-# 4. Load test data
+# 3. Load test data
 echo -e "\nLoading test data from $data_file..."
 
 # Parse JSON and extract URLs and testNames
@@ -92,7 +87,7 @@ mapfile -t test_names < <(jq -r '.[].testName' "$data_file")
 
 echo -e "Found ${#urls[@]} URLs to test"
 
-# 5. Ask for config scenario
+# 4. Ask for config scenario
 config_dir="$test_type_root/configs"
 mapfile -t configs < <(find "$config_dir" -name "*.json" -exec basename {} \;)
 
@@ -103,7 +98,7 @@ fi
 
 selected_config=$(show_choice_prompt "Which config file?" "${configs[@]}")
 
-# 6. Ask for test range
+# 5. Ask for test range
 echo -e "\nTest range options:"
 echo "1: Test all ${#urls[@]} URLs"
 echo "2: Test specific range"
@@ -146,10 +141,14 @@ if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
     exit 0
 fi
 
-# 7. Run k6 for each URL
+# 6. Run k6 for each URL
 declare -a exit_codes
 counter=1
-container_path="/tests/$test_type_folder/uiTest.js"
+if [ "$test_type_folder" == "API" ]; then
+    container_path="/tests/$test_type_folder/test.ts"
+else
+    container_path="/tests/$test_type_folder/uiTest.js"
+fi
 scenario="${selected_config%.json}"
 
 for i in "${!urls_to_test[@]}"; do
@@ -182,7 +181,7 @@ for i in "${!urls_to_test[@]}"; do
     ((counter++))
 done
 
-# 8. Show summary
+# 7. Show summary
 echo -e "\n==== TEST SUMMARY ===="
 
 failed_count=0

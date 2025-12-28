@@ -28,9 +28,10 @@ if ([string]::IsNullOrWhiteSpace($testTypeChoice)) {
 
 $testTypeFolder = if ($testTypeChoice -eq "2") { "API" } else { "UI" }
 $testType = if ($testTypeChoice -eq "2") { "K6-API" } else { "K6-UI" }
+$project = "quickPizza"
 Write-Host "Selected test type: $testType`n"
 
-# 2. Find available projects
+# 2. Find test root and files
 $repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $testTypeRoot = Join-Path $repoRoot "tests\$testTypeFolder"
 
@@ -39,31 +40,25 @@ if (-not (Test-Path $testTypeRoot)) {
     exit 1
 }
 
-$projects = Get-ChildItem -Path $testTypeRoot -Directory | Where-Object { $_.Name -ne "configs" } | Select-Object -ExpandProperty Name
-
-if (-not $projects) {
-    Write-Host "No projects found in $testTypeRoot"
-    exit 1
+if ($testTypeFolder -eq "API") {
+    $testFile = Join-Path $testTypeRoot "test.ts"
+    $dataFile = Join-Path $testTypeRoot "data.json"
+} else {
+    $testFile = Join-Path $testTypeRoot "uiTest.js"
+    $dataFile = Join-Path $testTypeRoot "quickPizza\data.json"
 }
 
-$project = Show-ChoicePrompt "Which project?" $projects
-
-# 3. Find test root and files
-$projectRoot = Join-Path $testTypeRoot $project
-$testFile = Join-Path $testTypeRoot "uiTest.js"
-$dataFile = Join-Path $projectRoot "data.json"
-
 if (-not (Test-Path $testFile)) {
-    Write-Host "uiTest.js not found in $testTypeRoot"
+    Write-Host "Test file not found: $testFile"
     exit 1
 }
 
 if (-not (Test-Path $dataFile)) {
-    Write-Host "data.json not found in $projectRoot"
+    Write-Host "data.json not found: $dataFile"
     exit 1
 }
 
-# 4. Load test data
+# 3. Load test data
 $testData = Get-Content $dataFile | ConvertFrom-Json
 $allUrls = @()
 
@@ -76,7 +71,7 @@ foreach ($urlEntry in $testData) {
 
 Write-Host "`nFound $($allUrls.Count) URLs to test"
 
-# 5. Ask for config scenario
+# 4. Ask for config scenario
 $configDir = Join-Path $testTypeRoot "configs"
 $configs = Get-ChildItem -Path $configDir -Filter *.json | Select-Object -ExpandProperty Name
 
@@ -87,7 +82,7 @@ if (-not $configs) {
 
 $selectedConfig = Show-ChoicePrompt "Which config file?" $configs
 
-# 6. Ask for test range
+# 5. Ask for test range
 Write-Host "`nTest range options:"
 Write-Host "1: Test all $($allUrls.Count) URLs"
 Write-Host "2: Test specific range"
@@ -130,10 +125,14 @@ if ($confirm -notin @("Y", "y")) {
     exit 0
 }
 
-# 7. Run k6 for each URL
+# 6. Run k6 for each URL
 $results = @()
 $counter = 1
-$containerPath = "/tests/$testTypeFolder/uiTest.js"
+if ($testTypeFolder -eq "API") {
+    $containerPath = "/tests/$testTypeFolder/test.ts"
+} else {
+    $containerPath = "/tests/$testTypeFolder/uiTest.js"
+}
 
 foreach ($urlData in $urlsToTest) {
     $testid = "$project-$($urlData.TestName)"
