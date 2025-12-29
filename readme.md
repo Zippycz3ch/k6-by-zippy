@@ -2,6 +2,8 @@
 
 Complete local environment for API and UI performance testing using Grafana k6, InfluxDB v2.x and Grafana dashboards.
 
+Tests run against local QuickPizza API instance included in Docker stack.
+
 Change passwords for non-local deployments.
 
 ## Based on
@@ -24,8 +26,17 @@ cd k6-by-zippy
 
 Run from repo root:
 
+**Windows:**
+
+```powershell
+.\setup-k6custom.ps1
+```
+
+**Linux/Mac:**
+
 ```sh
-./setup-k6custom.ps1
+chmod +x setup-k6custom.sh
+./setup-k6custom.sh
 ```
 
 The script performs:
@@ -61,17 +72,28 @@ Grafana:
 
 Interactive test runner for both API and UI tests:
 
+**Windows:**
+
+```powershell
+.\testRunner.ps1
+```
+
+**Linux/Mac:**
+
 ```sh
-./testRunner.ps1
+chmod +x testRunner.sh
+./testRunner.sh
 ```
 
 The runner allows selection of:
 
 - Test type (API/UI)
 - Specific test file
-- Scenario configuration (for API tests)
+- Scenario configuration
 
-### API Tests
+### Manual Test Execution
+
+#### API Tests
 
 API tests support ENV variable scenario selection:
 
@@ -81,117 +103,61 @@ API tests support ENV variable scenario selection:
 
 Default scenario: `20iter-5vu`
 
+Run with Grafana tags (required for dashboards):
+
+```sh
+docker exec k6 k6 run /tests/API/apiSample.js \
+  --tag testid=K6-API-sample \
+  --tag project=quickPizza \
+  --tag testType=K6-API \
+  --tag release=dev \
+  --tag buildId=12345678
+```
+
 Run API tests directly:
 
 ```sh
 # Simple inline test
-docker exec k6 k6 run /tests/API/apiSample.js
+docker exec k6 k6 run /tests/API/apiSample.js --tag testid=K6-API-sample --tag project=quickPizza --tag testType=K6-API --tag release=dev --tag buildId=12345678
 
 # Full test with scenario
-docker exec k6 k6 run /tests/API/pizza/getDoughs/getDoughsTest.js -e SCENARIO=100iter-10vu
+docker exec k6 k6 run /tests/API/pizza/getDoughs/getDoughsTest.js -e SCENARIO=100iter-10vu --tag testid=K6-API-getDoughs --tag project=quickPizza --tag testType=K6-API --tag release=dev --tag buildId=12345678
 ```
 
-### UI Tests
+#### UI Tests
+
+UI tests support ENV variable scenario selection:
+
+- `1iter` - Single iteration
+- `20iter` - 20 iterations
+- `100iter` - 100 iterations
+
+Default scenario: `20iter`
 
 Run UI tests with required tags:
 
 ```sh
+# Simple test with default scenario
 docker exec -it k6 k6 run /tests/UI/uiSample.ts --tag testid=K6-UI-uiSample --tag project=quickPizza --tag testType=K6-UI --tag release=dev --tag buildId=12345678
+
+# With scenario selection
+docker exec -it k6 k6 run /tests/UI/uiSample.ts -e SCENARIO=100iter --tag testid=K6-UI-uiSample --tag project=quickPizza --tag testType=K6-UI --tag release=dev --tag buildId=12345678
 ```
 
 ### View Results
 
-Open [http://localhost:3000](http://localhost:3000) for Grafana dashboards.
+**Grafana Dashboards:** [http://localhost:3000](http://localhost:3000)
 
-## Manual Setup
+Additional services:
 
-Manual setup process:
-
-1. Start and initialize InfluxDB
-
-   ```sh
-   cd docker
-   docker compose up -d InfluxDB
-   ```
-
-   Navigate to [http://localhost:8086](http://localhost:8086) and configure:
-
-   - Username: `k6user`
-   - Password: `k6password`
-   - Organization: `k6org`
-   - Bucket: `k6`
-   - Copy the Admin Token
-
-2. Update config files
-
-   - Edit `docker/Dockerfile`:
-     - Set `K6_InfluxDB_TOKEN` to the token value
-   - Edit `docker/grafana/provisioning/datasources/InfluxDB.yml`:
-     - Set `organization:` and `token:` fields
-   - Edit `docker/docker-compose.yml`:
-     - Set `PIZZA_TOKEN` environment variable in k6 service
-
-3. Build custom k6 Docker image
-
-   ```sh
-   cd docker
-   docker build -t custom-k6 .
-   ```
-
-4. Start full stack
-
-   ```sh
-   cd docker
-   docker compose up -d
-   ```
-
-5. Update dashboards with InfluxDB UID
-
-   - Navigate to [http://localhost:3000](http://localhost:3000)
-   - Login: admin/admin
-   - Go to Connections → Data sources → InfluxDB
-   - Copy UID from URL (`/datasources/edit/<UID>`)
-   - Replace old UID in all `.json` files in `docker/grafana/dashboards/`:
-     ```json
-     "datasource": {
-       "type": "InfluxDB",
-       "uid": "OLD-UID"
-     }
-     ```
-   - Save all dashboard files
-
-6. Restart stack
-
-   ```sh
-   cd docker
-   docker compose down
-   docker compose up -d
-   ```
-
-7. Run tests
-
-   ```sh
-   docker exec k6 k6 run /tests/API/apiSample.js
-   docker exec -it k6 k6 run /tests/UI/uiSample.ts --tag testid=K6-UI-uiSample --tag project=quickPizza --tag testType=K6-UI --tag release=dev --tag buildId=12345678
-   ```
-
-8. View dashboards in Grafana
+- InfluxDB: [http://localhost:8086](http://localhost:8086)
+- QuickPizza API: [http://localhost:3333](http://localhost:3333)
 
 ---
 
-## Troubleshooting
+## Additional Documentation
 
-- **Script not found**: Verify test script path matches volume mapping in `docker-compose.yml`
-- **InfluxDB/Grafana errors**: Check logs:
-  ```sh
-  docker logs InfluxDB
-  docker logs grafana
-  ```
-- **Custom k6 image not found**: Build image using `docker build` command
-- **InfluxDB unauthorized errors**: Verify correct org, bucket, and token configuration
-- **Reset InfluxDB**: Remove docker volume and rerun onboarding:
-  ```sh
-  docker compose down -v
-  ```
+- [Manual Setup Guide](docs/manual-setup.md)
+- [Troubleshooting](docs/troubleshooting.md)
 
 ---
