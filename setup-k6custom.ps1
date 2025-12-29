@@ -154,8 +154,8 @@ Write-Host "`n[9/9] Running sample tests to verify setup..." -ForegroundColor Ye
 Write-Host "   This will test the API and UI with default scenarios." -ForegroundColor Yellow
 $runSample = Read-Host "Do you want to run the sample tests now? [Y/N]"
 if ($runSample -eq "Y" -or $runSample -eq "y" -or $runSample -eq "") {
-    Write-Host "`n--- Running API Sample Test (getDoughsTest with default 20iter-5vu) ---" -ForegroundColor Cyan
-    docker exec k6 k6 run /tests/API/pizza/getDoughs/getDoughsTest.js
+    Write-Host "`n--- Running API Sample Test (inline simple test) ---" -ForegroundColor Cyan
+    docker exec k6 k6 run /tests/API/apiSample.js
     
     Write-Host "`n--- Running UI Sample Test (quickpizza.grafana.com) ---" -ForegroundColor Cyan
     docker exec -it k6 k6 run /tests/UI/uiSample.js `
@@ -177,11 +177,12 @@ if ($runSample -eq "Y" -or $runSample -eq "y" -or $runSample -eq "") {
 }
 else {
     Write-Host "Skipped sample tests. You can run them later with:" -ForegroundColor Yellow
-    Write-Host "  API Test:  docker exec k6 k6 run /tests/API/pizza/getDoughs/getDoughsTest.js" -ForegroundColor Cyan
-    Write-Host "  With ENV:  docker exec k6 k6 run /tests/API/pizza/getDoughs/getDoughsTest.js -e SCENARIO=100iter-5vu" -ForegroundColor Cyan
+    Write-Host "  API Test:  docker exec k6 k6 run /tests/API/apiSample.js" -ForegroundColor Cyan
+    Write-Host "  API Full:  docker exec k6 k6 run /tests/API/pizza/getDoughs/getDoughsTest.js -e SCENARIO=100iter-5vu" -ForegroundColor Cyan
     Write-Host "  UI Test:   docker exec -it k6 k6 run /tests/UI/uiSample.js --tag testid=K6-UI-quickPizzaSample --tag project=quickPizza --tag testType=K6-UI --tag release=setup --tag buildId=00000000" -ForegroundColor Cyan
 }
 
 Write-Host "`n${GREEN}Setup Complete!${NC}" -ForegroundColor Green
 Write-Host "API tests support ENV vars for scenarios: 1iter, 20iter-1vu, 20iter-5vu (default), 20iter-10vu, 100iter-1vu, 100iter-5vu, 100iter-10vu" -ForegroundColor Cyan
-Write-Host "Example: docker exec k6 k6 run /tests/API/pizza/getDoughs/getDoughsTest.js -e SCENARIO=1iter" -ForegroundColor Cyan
+Write-Host "Example: docker exec k6 k6 run /tests/API/apiSample.js" -ForegroundColor Cyan
+Write-Host "         docker exec k6 k6 run /tests/API/pizza/getDoughs/getDoughsTest.js -e SCENARIO=1iter" -ForegroundColor Cyan
