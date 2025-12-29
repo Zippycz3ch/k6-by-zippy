@@ -24,20 +24,20 @@ git clone https://github.com/Zippycz3ch/k6-by-zippy
 cd k6-by-zippy
 ```
 
-Run from repo root:
-
-**Windows:**
+### Windows
 
 ```powershell
 .\setup-k6custom.ps1
 ```
 
-**Linux/Mac:**
+### Linux/Mac
 
 ```sh
 chmod +x setup-k6custom.sh
 ./setup-k6custom.sh
 ```
+
+### Setup Script Features
 
 The script performs:
 
@@ -70,20 +70,22 @@ Grafana:
 
 ### Test Runner (Recommended)
 
-Interactive test runner for both API and UI tests:
+Interactive test runner for both API and UI tests.
 
-**Windows:**
+#### Windows
 
 ```powershell
 .\testRunner.ps1
 ```
 
-**Linux/Mac:**
+#### Linux/Mac
 
 ```sh
 chmod +x testRunner.sh
 ./testRunner.sh
 ```
+
+#### Features
 
 The runner allows selection of:
 
@@ -104,7 +106,7 @@ Additional services:
 
 ## Additional Documentation
 
-- [Manual Test Execution](docs/manual-test-execution.md)
+- [Manual Test Execution](MANUAL-TEST-EXECUTION.md)
 - [Manual Setup Guide](docs/manual-setup.md)
 - [Troubleshooting](docs/troubleshooting.md)
 
