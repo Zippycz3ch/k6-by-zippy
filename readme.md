@@ -1,8 +1,8 @@
 # k6custom Performance Testing Stack
 
-This repository provides a complete local environment for UI performance testing using Grafana k6, InfluxDB v2.x and Grafana dashboards.
+Complete local environment for API and UI performance testing using Grafana k6, InfluxDB v2.x and Grafana dashboards.
 
-Change your passwords if you use this as non local setup!
+Change passwords for non-local deployments.
 
 ## Based on
 
@@ -15,8 +15,6 @@ Change your passwords if you use this as non local setup!
 
 ## Quick Automated Setup (Recommended)
 
-Use the provided PowerShell script for hassle-free setup and configuration.
-
 Clone repository:
 
 ```sh
@@ -24,22 +22,22 @@ git clone https://github.com/Zippycz3ch/k6-by-zippy
 cd k6-by-zippy
 ```
 
-From the repo root, run:
+Run from repo root:
 
 ```sh
 ./setup-k6custom.ps1
 ```
 
-This script will:
+The script performs:
 
-- Check all required files and dashboards.
-- Build custom k6 Docker image with browser support, InfluxDB output and faker.
-- Start InfluxDB and guide you through onboarding.
-- Start Grafana and guide you through onboarding and connectiong to Influx.
-- Creates and updates Grafana dashboards with your InfluxDB token and updates other config files.
-- Creates folder for screenshots from UI tests /screenshots
-- Build and launch all containers.
-- Run a sample test to verify the setup.
+- Validates required files and dashboards
+- Builds custom k6 Docker image with browser support, InfluxDB output and faker
+- Starts and configures InfluxDB
+- Starts and configures Grafana with InfluxDB connection
+- Updates Grafana dashboards with InfluxDB token and configuration
+- Creates screenshots directory for UI test outputs
+- Launches all containers
+- Runs sample tests to verify setup
 
 Default credentials
 
@@ -59,23 +57,55 @@ Grafana:
 
 ## Running Tests
 
-After setup, you can run the UI data driven tests using the provided PowerShell script:
+### Test Runner (Recommended)
+
+Interactive test runner for both API and UI tests:
 
 ```sh
-./testsRunner.ps1
+./testRunner.ps1
 ```
 
-Or you can run each test individually from the Docker folder. Update the tags to match with testRunner tags.
+The runner allows selection of:
+
+- Test type (API/UI)
+- Specific test file
+- Scenario configuration (for API tests)
+
+### API Tests
+
+API tests support ENV variable scenario selection:
+
+- `1iter` - Single iteration, 1 VU
+- `20iter-1vu`, `20iter-5vu`, `20iter-10vu` - 20 iterations with variable VUs
+- `100iter-1vu`, `100iter-5vu`, `100iter-10vu` - 100 iterations with variable VUs
+
+Default scenario: `20iter-5vu`
+
+Run API tests directly:
 
 ```sh
-docker exec -it k6 k6 run /tests/UI/uiSample.js --tag testName=K6-UI-uiSample --tag project=uiSample --tag testType=K6-UI --tag release=dev --tag buildId=12345678
+# Simple inline test
+docker exec k6 k6 run /tests/API/apiSample.js
+
+# Full test with scenario
+docker exec k6 k6 run /tests/API/pizza/getDoughs/getDoughsTest.js -e SCENARIO=100iter-10vu
 ```
 
-Open [http://localhost:3000](http://localhost:3000) (Grafana).
+### UI Tests
+
+Run UI tests with required tags:
+
+```sh
+docker exec -it k6 k6 run /tests/UI/uiSample.ts --tag testid=K6-UI-uiSample --tag project=quickPizza --tag testType=K6-UI --tag release=dev --tag buildId=12345678
+```
+
+### View Results
+
+Open [http://localhost:3000](http://localhost:3000) for Grafana dashboards.
 
 ## Manual Setup
 
-If you want to setup everything manually, start each container step by step as follows:
+Manual setup process:
 
 1. Start and initialize InfluxDB
 
@@ -84,55 +114,53 @@ If you want to setup everything manually, start each container step by step as f
    docker compose up -d InfluxDB
    ```
 
-   Go to [http://localhost:8086](http://localhost:8086) and onboard using:
+   Navigate to [http://localhost:8086](http://localhost:8086) and configure:
 
    - Username: `k6user`
    - Password: `k6password`
    - Organization: `k6org`
    - Bucket: `k6`
-   - Copy the Admin Token.
+   - Copy the Admin Token
 
 2. Update config files
 
    - Edit `docker/Dockerfile`:
-     - Set `K6_InfluxDB_TOKEN` to the above value.
+     - Set `K6_InfluxDB_TOKEN` to the token value
    - Edit `docker/grafana/provisioning/datasources/InfluxDB.yml`:
-     - Set the `organization:` and `token:` fields.
+     - Set `organization:` and `token:` fields
+   - Edit `docker/docker-compose.yml`:
+     - Set `PIZZA_TOKEN` environment variable in k6 service
 
-3. Build your custom k6 Docker image
+3. Build custom k6 Docker image
 
    ```sh
    cd docker
    docker build -t custom-k6 .
    ```
 
-4. Start the full stack
+4. Start full stack
 
    ```sh
    cd docker
    docker compose up -d
    ```
 
-5. Update all dashboards with correct InfluxDB UID
+5. Update dashboards with InfluxDB UID
 
-   - Open [http://localhost:3000](http://localhost:3000) (Grafana).
-   - Log in:
-     - Username: `admin`
-     - Password: `admin`
-   - Go to Connections → Data sources → InfluxDB.
-   - Copy the UID from the browser URL (`/datasources/edit/<UID>`).
-   - Find and replace the old UID in every `.json` file in `docker/grafana/dashboards/` (recursively):
-     - Replace all occurrences of:
-       ```json
-       "datasource": {
-         "type": "InfluxDB",
-         "uid": "OLD-UID"
-       }
-       ```
-       with your new UID.
-   - Save all dashboard files.
+   - Navigate to [http://localhost:3000](http://localhost:3000)
+   - Login: admin/admin
+   - Go to Connections → Data sources → InfluxDB
+   - Copy UID from URL (`/datasources/edit/<UID>`)
+   - Replace old UID in all `.json` files in `docker/grafana/dashboards/`:
+     ```json
+     "datasource": {
+       "type": "InfluxDB",
+       "uid": "OLD-UID"
+     }
+     ```
+   - Save all dashboard files
 
-6. Restart the stack
+6. Restart stack
 
    ```sh
    cd docker
@@ -140,37 +168,30 @@ If you want to setup everything manually, start each container step by step as f
    docker compose up -d
    ```
 
-7. Run your k6 tests
+7. Run tests
 
    ```sh
-   docker exec -it k6 k6 run /tests/UI/uiSample.js --tag testName=K6-UI-uiSample --tag project=uiSample --tag testType=K6-UI --tag release=dev --tag buildId=12345678
+   docker exec k6 k6 run /tests/API/apiSample.js
+   docker exec -it k6 k6 run /tests/UI/uiSample.ts --tag testid=K6-UI-uiSample --tag project=quickPizza --tag testType=K6-UI --tag release=dev --tag buildId=12345678
    ```
 
-8. View live dashboards in Grafana
-   All dashboards should now display live k6 results.
+8. View dashboards in Grafana
 
 ---
 
 ## Troubleshooting
 
-- Script not found:
-  Make sure your test script path matches the volume mapping in `docker-compose.yml`.
-- InfluxDB/Grafana errors:
-  Check logs:
+- **Script not found**: Verify test script path matches volume mapping in `docker-compose.yml`
+- **InfluxDB/Grafana errors**: Check logs:
   ```sh
   docker logs InfluxDB
   docker logs grafana
   ```
-- Custom k6 image not found:
-  Always build the image first using the `docker build` command above.
-- InfluxDB unauthorized errors:
-  Ensure you're using the correct org, bucket, and token as described above.
-- To reset InfluxDB setup:
-  Remove the `InfluxDB-data` docker volume and rerun onboarding if you want to start clean:
+- **Custom k6 image not found**: Build image using `docker build` command
+- **InfluxDB unauthorized errors**: Verify correct org, bucket, and token configuration
+- **Reset InfluxDB**: Remove docker volume and rerun onboarding:
   ```sh
   docker compose down -v
   ```
-
----
 
 ---
