@@ -1,0 +1,17 @@
+import http from "k6/http";
+import { checkResponse } from "../../../helpers/API/checkResponse.js";
+
+export function deleteRatings(token, ratingId) {
+  const params = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    tags: { name: "Ratings/Delete" },
+  };
+
+  const res = http.del(`${__ENV.BASEURL}/api/ratings/${ratingId}`, null, params);
+
+  const { data } = checkResponse(res, params.tags.name);
+
+  return data;
+}

@@ -1,0 +1,14 @@
+import http from "k6/http";
+import { checkResponse } from "../../../helpers/API/checkResponse.js";
+
+export function getQuotes() {
+  const params = {
+    tags: { name: "PizzaText/GetQuotes" },
+  };
+
+  const res = http.get(`${__ENV.BASEURL}/api/quotes`, params);
+
+  const { data } = checkResponse(res, params.tags.name);
+
+  return data;
+}

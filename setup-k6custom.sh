@@ -157,12 +157,16 @@ docker compose up -d
 popd > /dev/null
 echo -e "${GREEN}Stack restarted.${NC}"
 
-# 9. Run sample test
-echo -e "\n[9/9] Running sample UI test to verify setup..."
-echo -e "   ${YELLOW}This will test https://quickpizza.grafana.com/ and send metrics to InfluxDB.${NC}"
+# 9. Run sample tests
+echo -e "\n[9/9] Running sample tests to verify setup..."
+echo -e "   ${YELLOW}This will test the API and UI with default scenarios.${NC}"
 
-read -p "Do you want to run the sample test now? [Y/N]: " run_sample
+read -p "Do you want to run the sample tests now? [Y/N]: " run_sample
 if [[ "$run_sample" =~ ^[Yy]$ ]] || [ -z "$run_sample" ]; then
+    echo -e "\n${CYAN}--- Running API Sample Test (getDoughsTest with default 20iter-5vu) ---${NC}"
+    docker exec k6 k6 run /tests/API/pizza/getDoughs/getDoughsTest.js
+    
+    echo -e "\n${CYAN}--- Running UI Sample Test (quickpizza.grafana.com) ---${NC}"
     docker exec -it k6 k6 run /tests/UI/uiSample.ts \
         --tag testid=K6-UI-quickPizzaSample \
         --tag project=quickPizza \
@@ -170,7 +174,7 @@ if [[ "$run_sample" =~ ^[Yy]$ ]] || [ -z "$run_sample" ]; then
         --tag release=setup \
         --tag buildId=00000000
     
-    echo -e "\n${GREEN}Sample test completed. Check Grafana dashboards to see the results.${NC}"
+    echo -e "\n${GREEN}Sample tests completed. Check Grafana dashboards to see the results.${NC}"
     
     read -p "Do you want to open Grafana in your browser now? [Y/N]: " open_grafana_final
     if [[ "$open_grafana_final" =~ ^[Yy]$ ]] || [ -z "$open_grafana_final" ]; then
@@ -180,8 +184,12 @@ if [[ "$run_sample" =~ ^[Yy]$ ]] || [ -z "$run_sample" ]; then
         echo "Please open http://localhost:3000/dashboards in your browser manually."
     fi
 else
-    echo -e "${YELLOW}Skipped sample test. You can run it later with:${NC}"
-    echo -e "${CYAN}  docker exec -it k6 k6 run /tests/UI/uiSample.ts --tag testid=K6-UI-quickPizzaSample --tag project=quickPizza --tag testType=K6-UI --tag release=setup --tag buildId=00000000${NC}"
+    echo -e "${YELLOW}Skipped sample tests. You can run them later with:${NC}"
+    echo -e "${CYAN}  API Test:  docker exec k6 k6 run /tests/API/pizza/getDoughs/getDoughsTest.js${NC}"
+    echo -e "${CYAN}  With ENV:  docker exec k6 k6 run /tests/API/pizza/getDoughs/getDoughsTest.js -e SCENARIO=100iter-5vu${NC}"
+    echo -e "${CYAN}  UI Test:   docker exec -it k6 k6 run /tests/UI/uiSample.ts --tag testid=K6-UI-quickPizzaSample --tag project=quickPizza --tag testType=K6-UI --tag release=setup --tag buildId=00000000${NC}"
 fi
 
-echo -e "\n${GREEN}You can now run your k6 tests using ./testRunner.sh${NC}"
+echo -e "\n${GREEN}Setup Complete!${NC}"
+echo -e "${CYAN}API tests support ENV vars for scenarios: 1iter, 20iter-1vu, 20iter-5vu (default), 20iter-10vu, 100iter-1vu, 100iter-5vu, 100iter-10vu${NC}"
+echo -e "${CYAN}Example: docker exec k6 k6 run /tests/API/pizza/getDoughs/getDoughsTest.js -e SCENARIO=1iter${NC}"

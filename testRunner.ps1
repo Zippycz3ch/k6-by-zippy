@@ -1,22 +1,32 @@
+# testRunner.ps1 - K6 Test Runner for API and UI Tests
+
 Clear-Host
 
 function Show-ChoicePrompt {
-    param([string]$Message, [array]$Options)
-    Write-Host $Message
-    for ($i = 0; $i -lt $Options.Count; $i++) {
-        Write-Host "$($i+1): $($Options[$i])"
-    }
-    $choice = Read-Host "Enter number"
-    if ($choice -match '^\d+$' -and $choice -ge 1 -and $choice -le $Options.Count) {
-        return $Options[$choice - 1]
-    }
-    else {
-        Write-Host "Invalid selection. Please try again.`n"
-        return Show-ChoicePrompt $Message $Options
+    param(
+        [string]$Message,
+        [array]$Options
+    )
+    
+    while ($true) {
+        Write-Host $Message
+        for ($i = 0; $i -lt $Options.Length; $i++) {
+            Write-Host "$($i + 1): $($Options[$i])"
+        }
+        
+        $choice = Read-Host "Enter number"
+        
+        if ($choice -match '^\d+$' -and [int]$choice -ge 1 -and [int]$choice -le $Options.Length) {
+            return $Options[[int]$choice - 1]
+        }
+        else {
+            Write-Host "Invalid selection. Please try again." -ForegroundColor Red
+            Write-Host ""
+        }
     }
 }
 
-# 1. Ask for test type first
+# 1. Ask for test type
 Write-Host "Test type:"
 Write-Host "1: UI Tests"
 Write-Host "2: API Tests"
@@ -26,161 +36,317 @@ if ([string]::IsNullOrWhiteSpace($testTypeChoice)) {
     $testTypeChoice = "1"
 }
 
-$testTypeFolder = if ($testTypeChoice -eq "2") { "API" } else { "UI" }
-$testType = if ($testTypeChoice -eq "2") { "K6-API" } else { "K6-UI" }
+if ($testTypeChoice -eq "2") {
+    $testTypeFolder = "API"
+    $testType = "K6-API"
+}
+else {
+    $testTypeFolder = "UI"
+    $testType = "K6-UI"
+}
+
 $project = "quickPizza"
-Write-Host "Selected test type: $testType`n"
+Write-Host "Selected test type: $testType"
+Write-Host ""
 
 # 2. Find test root and files
-$repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+if ($PSScriptRoot) {
+    $repoRoot = $PSScriptRoot
+}
+else {
+    $repoRoot = (Get-Location).Path
+}
+
 $testTypeRoot = Join-Path $repoRoot "tests\$testTypeFolder"
 
 if (-not (Test-Path $testTypeRoot)) {
-    Write-Host "Test type folder not found: $testTypeRoot"
-    exit 1
-}
-
-if ($testTypeFolder -eq "API") {
-    $testFile = Join-Path $testTypeRoot "apiTest.ts"
-    $dataFile = Join-Path $testTypeRoot "quickPizza\data.json"
-} else {
-    $testFile = Join-Path $testTypeRoot "uiTest.js"
-    $dataFile = Join-Path $testTypeRoot "quickPizza\data.json"
-}
-
-if (-not (Test-Path $testFile)) {
-    Write-Host "Test file not found: $testFile"
-    exit 1
-}
-
-if (-not (Test-Path $dataFile)) {
-    Write-Host "data.json not found: $dataFile"
+    Write-Host "Test type folder not found: $testTypeRoot" -ForegroundColor Red
     exit 1
 }
 
 # 3. Load test data
-$testData = Get-Content $dataFile | ConvertFrom-Json
-$allUrls = @()
-
-foreach ($urlEntry in $testData) {
-    $allUrls += [PSCustomObject]@{
-        Url      = $urlEntry.url
-        TestName = $urlEntry.testName
+if ($testTypeFolder -eq "API") {
+    # Find all API test files
+    $testFiles = Get-ChildItem -Path $testTypeRoot -Recurse -Filter "*Test.js"
+    
+    if ($testFiles.Count -eq 0) {
+        Write-Host "No API test files found in $testTypeRoot" -ForegroundColor Red
+        exit 1
     }
-}
-
-Write-Host "`nFound $($allUrls.Count) URLs to test"
-
-# 4. Ask for config scenario
-$configDir = Join-Path $testTypeRoot "configs"
-$configs = Get-ChildItem -Path $configDir -Filter *.json | Select-Object -ExpandProperty Name
-
-if (-not $configs) {
-    Write-Host "No config files found in $configDir"
-    exit 1
-}
-
-$selectedConfig = Show-ChoicePrompt "Which config file?" $configs
-
-# 5. Ask for test range
-Write-Host "`nTest range options:"
-Write-Host "1: Test all $($allUrls.Count) URLs"
-Write-Host "2: Test specific range"
-
-$rangeChoice = Read-Host "Enter number (default: 1)"
-if ([string]::IsNullOrWhiteSpace($rangeChoice)) {
-    $rangeChoice = "1"
-}
-
-$urlsToTest = @()
-if ($rangeChoice -eq "2") {
-    $startIdx = [int](Read-Host "Start index (1-$($allUrls.Count))")
-    $endIdx = [int](Read-Host "End index (1-$($allUrls.Count))")
-    $urlsToTest = $allUrls[($startIdx - 1)..($endIdx - 1)]
+    
+    $testPaths = @()
+    $testNames = @()
+    $testCategories = @()
+    
+    foreach ($testFile in $testFiles) {
+        $relativePath = $testFile.FullName.Replace("$testTypeRoot\", "").Replace("\", "/")
+        $testName = $testFile.BaseName
+        $category = Split-Path -Leaf (Split-Path -Parent $testFile.FullName)
+        
+        $testPaths += $relativePath
+        $testNames += $testName
+        $testCategories += $category
+    }
+    
+    Write-Host "Found $($testPaths.Count) API test(s)"
 }
 else {
-    $urlsToTest = $allUrls
+    # UI tests use data.json
+    $dataFile = Join-Path $testTypeRoot "quickPizza\data.json"
+    
+    if (-not (Test-Path $dataFile)) {
+        Write-Host "data.json not found: $dataFile" -ForegroundColor Red
+        exit 1
+    }
+    
+    $dataContent = Get-Content $dataFile -Raw | ConvertFrom-Json
+    $urls = $dataContent | ForEach-Object { $_.url }
+    $testNames = $dataContent | ForEach-Object { $_.testName }
+    
+    Write-Host "Found $($urls.Count) URL(s) to test"
 }
 
-Write-Host "`nReady to run $($urlsToTest.Count) test(s) with config $selectedConfig."
+# 4. Ask for SCENARIO if API tests
+if ($testTypeFolder -eq "API") {
+    $scenarios = @(
+        "1iter",
+        "20iter-1vu",
+        "20iter-5vu (default)",
+        "20iter-10vu",
+        "100iter-1vu",
+        "100iter-5vu",
+        "100iter-10vu"
+    )
+    $selectedScenario = Show-ChoicePrompt -Message "Which scenario?" -Options $scenarios
+    $selectedScenario = $selectedScenario -replace " \(default\)", ""
+}
+else {
+    # For UI tests, use config files
+    $configDir = Join-Path $testTypeRoot "configs"
+    $configs = Get-ChildItem -Path $configDir -Filter "*.json" | ForEach-Object { $_.Name }
+    
+    if ($configs.Count -eq 0) {
+        Write-Host "No config files found in $configDir" -ForegroundColor Red
+        exit 1
+    }
+    
+    $selectedConfig = Show-ChoicePrompt -Message "Which config file?" -Options $configs
+}
 
-$release = Read-Host "Enter release name (e.g., v1.2.3, sprint-45)"
+# 5. Ask for test range
+if ($testTypeFolder -eq "API") {
+    Write-Host ""
+    Write-Host "Test range options:"
+    Write-Host "1: Test all $($testNames.Count) tests"
+    Write-Host "2: Test specific range"
+    
+    $rangeChoice = Read-Host "Enter number (default: 1)"
+    if ([string]::IsNullOrWhiteSpace($rangeChoice)) {
+        $rangeChoice = "1"
+    }
+    
+    $testsToRun = @()
+    $namesToRun = @()
+    $categoriesToRun = @()
+    
+    if ($rangeChoice -eq "2") {
+        $startIdx = Read-Host "Start index (1-$($testNames.Count))"
+        $endIdx = Read-Host "End index (1-$($testNames.Count))"
+        
+        for ($i = [int]$startIdx - 1; $i -lt [int]$endIdx; $i++) {
+            $testsToRun += $testPaths[$i]
+            $namesToRun += $testNames[$i]
+            $categoriesToRun += $testCategories[$i]
+        }
+    }
+    else {
+        $testsToRun = $testPaths
+        $namesToRun = $testNames
+        $categoriesToRun = $testCategories
+    }
+    
+    Write-Host ""
+    Write-Host "Ready to run $($testsToRun.Count) test(s) with scenario $selectedScenario."
+}
+else {
+    Write-Host ""
+    Write-Host "Test range options:"
+    Write-Host "1: Test all $($urls.Count) URLs"
+    Write-Host "2: Test specific range"
+    
+    $rangeChoice = Read-Host "Enter number (default: 1)"
+    if ([string]::IsNullOrWhiteSpace($rangeChoice)) {
+        $rangeChoice = "1"
+    }
+    
+    $urlsToTest = @()
+    $testNamesToTest = @()
+    
+    if ($rangeChoice -eq "2") {
+        $startIdx = Read-Host "Start index (1-$($urls.Count))"
+        $endIdx = Read-Host "End index (1-$($urls.Count))"
+        
+        for ($i = [int]$startIdx - 1; $i -lt [int]$endIdx; $i++) {
+            $urlsToTest += $urls[$i]
+            $testNamesToTest += $testNames[$i]
+        }
+    }
+    else {
+        $urlsToTest = $urls
+        $testNamesToTest = $testNames
+    }
+    
+    Write-Host ""
+    Write-Host "Ready to run $($urlsToTest.Count) test(s) with config $selectedConfig."
+}
+
+$release = Read-Host "Enter release name (e.g. v1.2.3 or sprint-45)"
 if ([string]::IsNullOrWhiteSpace($release)) {
     $release = "dev"
 }
 
-$buildId = Read-Host "Enter buildId (8-digit number, press Enter to generate)"
+$buildId = Read-Host "Enter buildId (8-digit number or press Enter to generate)"
 if ([string]::IsNullOrWhiteSpace($buildId)) {
     $buildId = Get-Random -Minimum 10000000 -Maximum 99999999
     Write-Host "Generated buildId: $buildId"
 }
 
-$confirm = Read-Host "Proceed? (Y/N, Enter = Y)"
+$confirm = Read-Host "Proceed? (Y/N or Enter for Y)"
 if ([string]::IsNullOrWhiteSpace($confirm)) {
     $confirm = "Y"
 }
 
-if ($confirm -notin @("Y", "y")) {
+if ($confirm -notmatch '^[Yy]$') {
     Write-Host "Cancelled."
     exit 0
 }
 
-# 6. Run k6 for each URL
-$results = @()
+# 6. Run k6 for each test
+$exitCodes = @()
 $counter = 1
+
 if ($testTypeFolder -eq "API") {
-    $containerPath = "/tests/$testTypeFolder/apiTest.ts"
-} else {
-    $containerPath = "/tests/$testTypeFolder/uiTest.js"
-}
-
-foreach ($urlData in $urlsToTest) {
-    $testid = "$project-$($urlData.TestName)"
+    Write-Host ""
+    Write-Host "API tests will run with scenario: $selectedScenario"
+    Write-Host ""
     
-    Write-Host "`n[$counter/$($urlsToTest.Count)] Testing: $($urlData.Url)"
-    Write-Host "  TestName: $($urlData.TestName)"
-    Write-Host "  testid: $testid"
-    Write-Host "  release: $release"
-    Write-Host "  buildId: $buildId"
-    
-    docker exec `
-        -e SCENARIO="$($selectedConfig -replace '.json$')" `
-        -e url="$($urlData.Url)" `
-        -e testName="$($urlData.TestName)" `
-        -e testType="$testTypeFolder" `
-        -e project="$project" `
-        -it k6 k6 run $containerPath `
-        --tag testid=$testid `
-        --tag project=$project `
-        --tag testType=$testType `
-        --tag testName=$($urlData.TestName) `
-        --tag release=$release `
-        --tag buildId=$buildId
-    
-    $exitCode = $LASTEXITCODE
-    
-    $results += [PSCustomObject]@{
-        Url      = $urlData.Url
-        TestName = $urlData.TestName
-        TestId   = $testid
-        ExitCode = $exitCode
-    }
-    
-    $counter++
-}
-
-Write-Host "`n==== TEST SUMMARY ===="
-$failedTests = $results | Where-Object { $_.ExitCode -ne 0 }
-
-if ($failedTests) {
-    Write-Host "Some tests FAILED ($($failedTests.Count)/$($results.Count)):`n"
-    foreach ($fail in $failedTests) {
-        Write-Host "  - [$($fail.TestName)] $($fail.Url) | Exit: $($fail.ExitCode)"
+    for ($i = 0; $i -lt $testsToRun.Count; $i++) {
+        $testPath = $testsToRun[$i]
+        $testName = $namesToRun[$i]
+        $category = $categoriesToRun[$i]
+        $testid = "$project-$testName"
+        
+        Write-Host ""
+        Write-Host "[$counter/$($testsToRun.Count)] Testing: $testName"
+        Write-Host "  Category: $category"
+        Write-Host "  TestName: $testName"
+        Write-Host "  Scenario: $selectedScenario"
+        Write-Host "  testid: $testid"
+        Write-Host "  release: $release"
+        Write-Host "  buildId: $buildId"
+        
+        docker exec `
+            -e SCENARIO="$selectedScenario" `
+            k6 k6 run "/tests/$testTypeFolder/$testPath" `
+            --tag testid="$testid" `
+            --tag project="$project" `
+            --tag testType="$testType" `
+            --tag testName="$testName" `
+            --tag release="$release" `
+            --tag buildId="$buildId"
+        
+        $exitCodes += $LASTEXITCODE
+        $counter++
     }
 }
 else {
-    Write-Host "All $($results.Count) tests passed!"
+    Write-Host ""
+    Write-Host "UI tests will run with config: $selectedConfig"
+    Write-Host ""
+    $scenario = $selectedConfig -replace '\.json$', ''
+    
+    for ($i = 0; $i -lt $urlsToTest.Count; $i++) {
+        $url = $urlsToTest[$i]
+        $testName = $testNamesToTest[$i]
+        $testid = "$project-$testName"
+        $containerPath = "/tests/$testTypeFolder/uiTest.js"
+        
+        Write-Host ""
+        Write-Host "[$counter/$($urlsToTest.Count)] Testing: $url"
+        Write-Host "  TestName: $testName"
+        Write-Host "  Config: $selectedConfig"
+        Write-Host "  testid: $testid"
+        Write-Host "  release: $release"
+        Write-Host "  buildId: $buildId"
+        
+        docker exec `
+            -e SCENARIO="$scenario" `
+            -e url="$url" `
+            -e testName="$testName" `
+            -e testType="$testTypeFolder" `
+            -e project="$project" `
+            -it k6 k6 run "$containerPath" `
+            --tag testid="$testid" `
+            --tag project="$project" `
+            --tag testType="$testType" `
+            --tag testName="$testName" `
+            --tag release="$release" `
+            --tag buildId="$buildId"
+        
+        $exitCodes += $LASTEXITCODE
+        $counter++
+    }
 }
 
+# 7. Show summary
+Write-Host ""
+Write-Host "==== TEST SUMMARY ===="
+
+$failedCount = 0
+if ($testTypeFolder -eq "API") {
+    $totalCount = $testsToRun.Count
+    for ($i = 0; $i -lt $exitCodes.Count; $i++) {
+        if ($exitCodes[$i] -ne 0) {
+            $failedCount++
+        }
+    }
+    
+    if ($failedCount -gt 0) {
+        Write-Host "Some tests FAILED ($failedCount/$totalCount):" -ForegroundColor Red
+        Write-Host ""
+        for ($i = 0; $i -lt $exitCodes.Count; $i++) {
+            if ($exitCodes[$i] -ne 0) {
+                Write-Host "  - [$($namesToRun[$i])] $($categoriesToRun[$i]) | Exit: $($exitCodes[$i])" -ForegroundColor Red
+            }
+        }
+    }
+    else {
+        Write-Host "All $totalCount tests passed!" -ForegroundColor Green
+    }
+}
+else {
+    $totalCount = $urlsToTest.Count
+    for ($i = 0; $i -lt $exitCodes.Count; $i++) {
+        if ($exitCodes[$i] -ne 0) {
+            $failedCount++
+        }
+    }
+    
+    if ($failedCount -gt 0) {
+        Write-Host "Some tests FAILED ($failedCount/$totalCount):" -ForegroundColor Red
+        Write-Host ""
+        for ($i = 0; $i -lt $exitCodes.Count; $i++) {
+            if ($exitCodes[$i] -ne 0) {
+                Write-Host "  - [$($testNamesToTest[$i])] $($urlsToTest[$i]) | Exit: $($exitCodes[$i])" -ForegroundColor Red
+            }
+        }
+    }
+    else {
+        Write-Host "All $totalCount tests passed!" -ForegroundColor Green
+    }
+}
+
+Write-Host ""
 Write-Host "======================"
-Write-Host "`nAll tests complete."
+Write-Host ""
+Write-Host "All tests complete."

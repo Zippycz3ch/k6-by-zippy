@@ -1,0 +1,13 @@
+{
+  "environments": {
+    "dev": {
+      "baseUrl": "http://quickpizza:3333"
+    },
+    "prod": {
+      "baseUrl": "https://quickpizza.grafana.com"
+    }
+  },
+  "auth": {
+    "pizzaToken": "abcdef0123456789"
+  }
+}

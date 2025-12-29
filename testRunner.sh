@@ -60,69 +60,126 @@ if [ ! -d "$test_type_root" ]; then
     exit 1
 fi
 
-if [ "$test_type_folder" == "API" ]; then
-    test_file="$test_type_root/apiTest.ts"
-    data_file="$test_type_root/quickPizza/data.json"
-else
-    test_file="$test_type_root/uiTest.js"
-    data_file="$test_type_root/quickPizza/data.json"
-fi
-
-if [ ! -f "$test_file" ]; then
-    echo "Test file not found: $test_file"
-    exit 1
-fi
-
-if [ ! -f "$data_file" ]; then
-    echo "data.json not found: $data_file"
-    exit 1
-fi
-
 # 3. Load test data
-echo -e "\nLoading test data from $data_file..."
-
-# Parse JSON and extract URLs and testNames
-mapfile -t urls < <(jq -r '.[].url' "$data_file")
-mapfile -t test_names < <(jq -r '.[].testName' "$data_file")
+if [ "$test_type_folder" == "API" ]; then
+    # Find all API test files
+    mapfile -t test_files < <(find "$test_type_root" -name "*Test.js")
+    
+    if [ ${#test_files[@]} -eq 0 ]; then
+        echo "No API test files found in $test_type_root"
+        exit 1
+    fi
+    
+    declare -a test_paths
+    declare -a test_names
+    declare -a test_categories
+    
+    for test_file in "${test_files[@]}"; do
+        relative_path="${test_file#$test_type_root/}"
+        test_name=$(basename "$test_file" .js)
+        category=$(basename $(dirname "$test_file"))
+        
+        test_paths+=("${relative_path}")
+        test_names+=("${test_name}")
+        test_categories+=("${category}")
+    done
+else
+    # UI tests use data.json
+    data_file="$test_type_root/quickPizza/data.json"
+    
+    if [ ! -f "$data_file" ]; then
+        echo "data.json not found: $data_file"
+        exit 1
+    fi
+    
+    # Parse JSON and extract URLs and testNames
+    mapfile -t urls < <(jq -r '.[].url' "$data_file")
+    mapfile -t test_names < <(jq -r '.[].testName' "$data_file")
+fi
 
 echo -e "Found ${#urls[@]} URLs to test"
 
-# 4. Ask for config scenario
-config_dir="$test_type_root/configs"
-mapfile -t configs < <(find "$config_dir" -name "*.json" -exec basename {} \;)
-
-if [ ${#configs[@]} -eq 0 ]; then
-    echo "No config files found in $config_dir"
-    exit 1
+# 4. Ask for SCENARIO if API tests
+if [ "$test_type_folder" == "API" ]; then
+    scenarios=(
+        "1iter"
+        "20iter-1vu"
+        "20iter-5vu (default)"
+        "20iter-10vu"
+        "100iter-1vu"
+        "100iter-5vu"
+        "100iter-10vu"
+    )
+    selected_scenario=$(show_choice_prompt "Which scenario?" "${scenarios[@]}")
+    selected_scenario="${selected_scenario% (default)}"
+else
+    # For UI tests, still use config files
+    config_dir="$test_type_root/configs"
+    mapfile -t configs < <(find "$config_dir" -name "*.json" -exec basename {} \;)
+    
+    if [ ${#configs[@]} -eq 0 ]; then
+        echo "No config files found in $config_dir"
+        exit 1
+    fi
+    
+    selected_config=$(show_choice_prompt "Which config file?" "${configs[@]}")
 fi
-
-selected_config=$(show_choice_prompt "Which config file?" "${configs[@]}")
 
 # 5. Ask for test range
-echo -e "\nTest range options:"
-echo "1: Test all ${#urls[@]} URLs"
-echo "2: Test specific range"
-
-read -p "Enter number (default: 1): " range_choice
-range_choice=${range_choice:-1}
-
-declare -a urls_to_test
-declare -a test_names_to_test
-
-if [ "$range_choice" == "2" ]; then
-    read -p "Start index (1-${#urls[@]}): " start_idx
-    read -p "End index (1-${#urls[@]}): " end_idx
+if [ "$test_type_folder" == "API" ]; then
+    echo -e "\nTest range options:"
+    echo "1: Test all ${#test_names[@]} tests"
+    echo "2: Test specific range"
     
-    for ((i=$((start_idx-1)); i<$end_idx; i++)); do
-        urls_to_test+=("${urls[$i]}")
-        test_names_to_test+=("${test_names[$i]}")
-    done
+    read -p "Enter number (default: 1): " range_choice
+    range_choice=${range_choice:-1}
+    
+    declare -a tests_to_run
+    declare -a names_to_run
+    declare -a categories_to_run
+    
+    if [ "$range_choice" == "2" ]; then
+        read -p "Start index (1-${#test_names[@]}): " start_idx
+        read -p "End index (1-${#test_names[@]}): " end_idx
+        
+        for ((i=$((start_idx-1)); i<$end_idx; i++)); do
+            tests_to_run+=("${test_paths[$i]}")
+            names_to_run+=("${test_names[$i]}")
+            categories_to_run+=("${test_categories[$i]}")
+        done
+    else
+        tests_to_run=("${test_paths[@]}")
+        names_to_run=("${test_names[@]}")
+        categories_to_run=("${test_categories[@]}")
+    fi
+    
+    echo -e "\nReady to run ${#tests_to_run[@]} test(s) with scenario $selected_scenario."
 else
-    urls_to_test=("${urls[@]}")
-    test_names_to_test=("${test_names[@]}")
+    echo -e "\nTest range options:"
+    echo "1: Test all ${#urls[@]} URLs"
+    echo "2: Test specific range"
+    
+    read -p "Enter number (default: 1): " range_choice
+    range_choice=${range_choice:-1}
+    
+    declare -a urls_to_test
+    declare -a test_names_to_test
+    
+    if [ "$range_choice" == "2" ]; then
+        read -p "Start index (1-${#urls[@]}): " start_idx
+        read -p "End index (1-${#urls[@]}): " end_idx
+        
+        for ((i=$((start_idx-1)); i<$end_idx; i++)); do
+            urls_to_test+=("${urls[$i]}")
+            test_names_to_test+=("${test_names[$i]}")
+        done
+    else
+        urls_to_test=("${urls[@]}")
+        test_names_to_test=("${test_names[@]}")
+    fi
+    
+    echo -e "\nReady to run ${#urls_to_test[@]} test(s) with config $selected_config."
 fi
-
-echo -e "\nReady to run ${#urls_to_test[@]} test(s) with config $selected_config."
 
 read -p "Enter release name (e.g., v1.2.3, sprint-45): " release
 release=${release:-dev}
@@ -141,65 +198,152 @@ if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
     exit 0
 fi
 
-# 6. Run k6 for each URL
+# 6. Run k6 for each test
 declare -a exit_codes
 counter=1
-if [ "$test_type_folder" == "API" ]; then
-    container_path="/tests/$test_type_folder/apiTest.ts"
-else
-    container_path="/tests/$test_type_folder/uiTest.js"
-fi
-scenario="${selected_config%.json}"
 
-for i in "${!urls_to_test[@]}"; do
-    url="${urls_to_test[$i]}"
-    test_name="${test_names_to_test[$i]}"
-    testid="$project-$test_name"
+if [ "$test_type_folder" == "API" ]; then
+    echo -e "\nAPI tests will run with scenario: $selected_scenario\n"
     
-    echo -e "\n[$counter/${#urls_to_test[@]}] Testing: $url"
-    echo "  TestName: $test_name"
-    echo "  testid: $testid"
-    echo "  release: $release"
-    echo "  buildId: $build_id"
+    for i in "${!tests_to_run[@]}"; do
+        test_path="${tests_to_run[$i]}"
+        test_name="${names_to_run[$i]}"
+        category="${categories_to_run[$i]}"
+        testid="$project-$test_name"
+        
+        echo -e "\n[$counter/${#tests_to_run[@]}] Testing: $test_name"
+        echo "  Category: $category"
+        echo "  TestName: $test_name"
+        echo "  Scenario: $selected_scenario"
+        echo "  testid: $testid"
+        echo "  release: $release"
+        echo "  buildId: $build_id"
+        
+        docker exec \
+            -e SCENARIO="$selected_scenario" \
+            k6 k6 run "/tests/$test_type_folder/$test_path" \
+            --tag testid="$testid" \
+            --tag project="$project" \
+            --tag testType="$test_type" \
+            --tag testName="$test_name" \
+            --tag release="$release" \
+            --tag buildId="$build_id"
+        
+        exit_codes[$i]=$?
+        ((counter++))
+    done
+else
+    echo -e "\nUI tests will run with config: $selected_config\n"
+    scenario="${selected_config%.json}"
     
-    docker exec \
-        -e SCENARIO="$scenario" \
-        -e url="$url" \
-        -e testName="$test_name" \
-        -e testType="$test_type_folder" \
-        -e project="$project" \
-        -it k6 k6 run "$container_path" \
-        --tag testid="$testid" \
-        --tag project="$project" \
-        --tag testType="$test_type" \
-        --tag testName="$test_name" \
-        --tag release="$release" \
-        --tag buildId="$build_id"
-    
-    exit_codes[$i]=$?
-    
-    ((counter++))
-done
+    for i in "${!urls_to_test[@]}"; do
+        url="${urls_to_test[$i]}"
+        test_name="${test_names_to_test[$i]}"
+        testid="$project-$test_name"
+        container_path="/tests/$test_type_folder/uiTest.js"
+        
+        echo -e "\n[$counter/${#urls_to_test[@]}] Testing: $url"
+        echo "  TestName: $test_name"
+        echo "  Config: $selected_config"
+        echo "  testid: $testid"
+        echo "  release: $release"
+        echo "  buildId: $build_id"
+        
+        docker exec \
+            -e SCENARIO="$scenario" \
+            -e url="$url" \
+            -e testName="$test_name" \
+            -e testType="$test_type_folder" \
+            -e project="$project" \
+            -it k6 k6 run "$container_path" \
+            --tag testid="$testid" \
+            --tag project="$project" \
+            --tag testType="$test_type" \
+            --tag testName="$test_name" \
+            --tag release="$release" \
+            --tag buildId="$build_id"
+        
+        exit_codes[$i]=$?
+        ((counter++))
+    done
+fi
 
 # 7. Show summary
 echo -e "\n==== TEST SUMMARY ===="
 
 failed_count=0
-for i in "${!exit_codes[@]}"; do
-    if [ "${exit_codes[$i]}" -ne 0 ]; then
-        ((failed_count++))
-    fi
-done
-
-if [ $failed_count -gt 0 ]; then
-    echo -e "${RED}Some tests FAILED ($failed_count/${#urls_to_test[@]}):${NC}\n"
+if [ "$test_type_folder" == "API" ]; then
+    total_count=${#tests_to_run[@]}
     for i in "${!exit_codes[@]}"; do
         if [ "${exit_codes[$i]}" -ne 0 ]; then
-            echo -e "  ${RED}- [${test_names_to_test[$i]}] ${urls_to_test[$i]} | Exit: ${exit_codes[$i]}${NC}"
+            ((failed_count++))
         fi
     done
+    
+    if [ $failed_count -gt 0 ]; then
+        echo -e "${RED}Some tests FAILED ($failed_count/$total_count):${NC}\n"
+        for i in "${!exit_codes[@]}"; do
+            if [ "${exit_codes[$i]}" -ne 0 ]; then
+                echo -e "  ${RED}- [${names_to_run[$i]}] ${categories_to_run[$i]} | Exit: ${exit_codes[$i]}${NC}"
+            fi
+        done
+    else
+        echo -e "${GREEN}All $total_count tests passed!${NC}"
+    fi
 else
-    echo -e "${GREEN}All ${#urls_to_test[@]} tests passed!${NC}"
+    total_count=${#urls_to_test[@]}
+    for i in "${!exit_codes[@]}"; do
+        if [ "${exit_codes[$i]}" -ne 0 ]; then
+            ((failed_count++))
+        fi
+    done
+    
+    if [ $failed_count -gt 0 ]; then
+        echo -e "${RED}Some tests FAILED ($failed_count/$total_count):${NC}\n"
+        for i in "${!exit_codes[@]}"; do
+            if [ "${exit_codes[$i]}" -ne 0 ]; then
+                echo -e "  ${RED}- [${test_names_to_test[$i]}] ${urls_to_test[$i]} | Exit: ${exit_codes[$i]}${NC}"
+            fi
+        done
+    else
+        echo -e "${GREEN}All $total_count tests passed!${NC}"
+    fi
+fi
+    total_count=${#tests_to_run[@]}
+    for i in "${!exit_codes[@]}"; do
+        if [ "${exit_codes[$i]}" -ne 0 ]; then
+            ((failed_count++))
+        fi
+    done
+    
+    if [ $failed_count -gt 0 ]; then
+        echo -e "${RED}Some tests FAILED ($failed_count/$total_count):${NC}\n"
+        for i in "${!exit_codes[@]}"; do
+            if [ "${exit_codes[$i]}" -ne 0 ]; then
+                echo -e "  ${RED}- [${names_to_run[$i]}] ${categories_to_run[$i]} | Exit: ${exit_codes[$i]}${NC}"
+            fi
+        done
+    else
+        echo -e "${GREEN}All $total_count tests passed!${NC}"
+    fi
+else
+    total_count=${#urls_to_test[@]}
+    for i in "${!exit_codes[@]}"; do
+        if [ "${exit_codes[$i]}" -ne 0 ]; then
+            ((failed_count++))
+        fi
+    done
+    
+    if [ $failed_count -gt 0 ]; then
+        echo -e "${RED}Some tests FAILED ($failed_count/$total_count):${NC}\n"
+        for i in "${!exit_codes[@]}"; do
+            if [ "${exit_codes[$i]}" -ne 0 ]; then
+                echo -e "  ${RED}- [${test_names_to_test[$i]}] ${urls_to_test[$i]} | Exit: ${exit_codes[$i]}${NC}"
+            fi
+        done
+    else
+        echo -e "${GREEN}All $total_count tests passed!${NC}"
+    fi
 fi
 
 echo "======================"

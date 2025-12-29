@@ -1,5 +1,8 @@
 screenshots
 
+# Environment configuration
+.env
+
 # Docker artifacts
 docker/influxdb-data/
 docker/grafana-data/
