@@ -192,7 +192,7 @@ else
     echo -e "${YELLOW}Skipped sample tests. You can run them later with:${NC}"
     echo -e "  ${CYAN}API Test:  docker exec k6 k6 run /tests/API/apiSample.js --tag testid=K6-API-apiSample --tag project=quickPizza --tag testType=K6-API --tag release=setup --tag buildId=00000000${NC}"
     echo -e "${CYAN}  API Full:  docker exec k6 k6 run /tests/API/pizza/getDoughs/getDoughsTest.js -e SCENARIO=100iter-5vu${NC}"
-    echo -e "${CYAN}  UI Test:   docker exec -it k6 k6 run /tests/UI/uiSample.ts --tag testid=K6-UI-quickPizzaSample --tag project=quickPizza --tag testType=K6-UI --tag release=setup --tag buildId=00000000${NC}"
+    echo -e "${CYAN}  UI Test:   docker exec -it k6 k6 run /tests/UI/uiSample.ts --tag testName=K6-UI-quickPizzaSample --tag project=quickPizza --tag testType=K6-UI --tag release=setup --tag buildId=00000000${NC}"
 fi
 
 echo -e "\n${GREEN}Setup Complete!${NC}"
