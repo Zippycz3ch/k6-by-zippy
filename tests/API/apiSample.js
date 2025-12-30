@@ -1,5 +1,5 @@
 import http from "k6/http";
-import { check } from "k6";
+import { check, sleep } from "k6";
 
 export const options = {
   thresholds: {
@@ -61,5 +61,6 @@ export function apiSampleTest(data) {
     },
   });
 
+  sleep(1);
   console.log(`--- Finished: ${testName} | ITER ${__ITER} | VU ${__VU} ---`);
 }

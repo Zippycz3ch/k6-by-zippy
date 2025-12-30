@@ -164,11 +164,16 @@ echo -e "   ${YELLOW}This will test the API and UI with default scenarios.${NC}"
 read -p "Do you want to run the sample tests now? [Y/N]: " run_sample
 if [[ "$run_sample" =~ ^[Yy]$ ]] || [ -z "$run_sample" ]; then
     echo -e "\n${CYAN}--- Running API Sample Test (inline simple test) ---${NC}"
-    docker exec k6 k6 run /tests/API/apiSample.js
+    docker exec k6 k6 run /tests/API/apiSample.js \
+        --tag testid=K6-API-apiSample \
+        --tag project=quickPizza \
+        --tag testType=K6-API \
+        --tag release=setup \
+        --tag buildId=00000000
     
     echo -e "\n${CYAN}--- Running UI Sample Test (quickpizza.grafana.com) ---${NC}"
     docker exec -it k6 k6 run /tests/UI/uiSample.ts \
-        --tag testid=K6-UI-quickPizzaSample \
+        --tag testName=K6-UI-quickPizzaSample \
         --tag project=quickPizza \
         --tag testType=K6-UI \
         --tag release=setup \
@@ -185,7 +190,7 @@ if [[ "$run_sample" =~ ^[Yy]$ ]] || [ -z "$run_sample" ]; then
     fi
 else
     echo -e "${YELLOW}Skipped sample tests. You can run them later with:${NC}"
-    echo -e "${CYAN}  API Test:  docker exec k6 k6 run /tests/API/apiSample.js${NC}"
+    echo -e "  ${CYAN}API Test:  docker exec k6 k6 run /tests/API/apiSample.js --tag testid=K6-API-apiSample --tag project=quickPizza --tag testType=K6-API --tag release=setup --tag buildId=00000000${NC}"
     echo -e "${CYAN}  API Full:  docker exec k6 k6 run /tests/API/pizza/getDoughs/getDoughsTest.js -e SCENARIO=100iter-5vu${NC}"
     echo -e "${CYAN}  UI Test:   docker exec -it k6 k6 run /tests/UI/uiSample.ts --tag testid=K6-UI-quickPizzaSample --tag project=quickPizza --tag testType=K6-UI --tag release=setup --tag buildId=00000000${NC}"
 fi
