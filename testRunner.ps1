@@ -106,8 +106,17 @@ else {
     Write-Host "Found $($urls.Count) URL(s) to test"
 }
 
-# 4. Ask for SCENARIO if API tests
+# 4. Ask for SCENARIO
+$scenarios = @(
+    "1iter-1vu",
+    "20iter-1vu (default)",
+    "100iter-1vu"
+)
+$selectedScenario = Show-ChoicePrompt -Message "Which scenario?" -Options $scenarios
+$selectedScenario = $selectedScenario -replace " \(default\)", ""
+
 if ($testTypeFolder -eq "API") {
+    # API tests support more scenarios
     $scenarios = @(
         "1iter",
         "20iter-1vu",
@@ -119,18 +128,6 @@ if ($testTypeFolder -eq "API") {
     )
     $selectedScenario = Show-ChoicePrompt -Message "Which scenario?" -Options $scenarios
     $selectedScenario = $selectedScenario -replace " \(default\)", ""
-}
-else {
-    # For UI tests, use config files
-    $configDir = Join-Path $testTypeRoot "configs"
-    $configs = Get-ChildItem -Path $configDir -Filter "*.json" | ForEach-Object { $_.Name }
-    
-    if ($configs.Count -eq 0) {
-        Write-Host "No config files found in $configDir" -ForegroundColor Red
-        exit 1
-    }
-    
-    $selectedConfig = Show-ChoicePrompt -Message "Which config file?" -Options $configs
 }
 
 # 5. Ask for test range
@@ -168,7 +165,8 @@ if ($testTypeFolder -eq "API") {
     Write-Host ""
     Write-Host "Ready to run $($testsToRun.Count) test(s) with scenario $selectedScenario."
 }
-else {
+
+if ($testTypeFolder -eq "UI") {
     Write-Host ""
     Write-Host "Test range options:"
     Write-Host "1: Test all $($urls.Count) URLs"
@@ -197,7 +195,7 @@ else {
     }
     
     Write-Host ""
-    Write-Host "Ready to run $($urlsToTest.Count) test(s) with config $selectedConfig."
+    Write-Host "Ready to run $($urlsToTest.Count) test(s) with scenario $selectedScenario."
 }
 
 $release = Read-Host "Enter release name (e.g. v1.2.3 or sprint-45)"
@@ -261,9 +259,8 @@ if ($testTypeFolder -eq "API") {
 }
 else {
     Write-Host ""
-    Write-Host "UI tests will run with config: $selectedConfig"
+    Write-Host "UI tests will run with scenario: $selectedScenario"
     Write-Host ""
-    $scenario = $selectedConfig -replace '\.json$', ''
     
     for ($i = 0; $i -lt $urlsToTest.Count; $i++) {
         $url = $urlsToTest[$i]
@@ -274,13 +271,13 @@ else {
         Write-Host ""
         Write-Host "[$counter/$($urlsToTest.Count)] Testing: $url"
         Write-Host "  TestName: $testName"
-        Write-Host "  Config: $selectedConfig"
+        Write-Host "  Scenario: $selectedScenario"
         Write-Host "  testid: $testid"
         Write-Host "  release: $release"
         Write-Host "  buildId: $buildId"
         
         docker exec `
-            -e SCENARIO="$scenario" `
+            -e SCENARIO="$selectedScenario" `
             -e url="$url" `
             -e testName="$testName" `
             -e testType="$testTypeFolder" `

@@ -8,10 +8,10 @@
     "browser_web_vital_cls": ["p(90) < 0.250"]
   },
   "scenarios": {
-    "1iter": {
+    "20iter-1vu": {
       "executor": "shared-iterations",
       "vus": 1,
-      "iterations": 1,
+      "iterations": 20,
       "maxDuration": "5m",
       "exec": "test",
       "options": {

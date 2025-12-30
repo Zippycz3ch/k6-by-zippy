@@ -99,8 +99,17 @@ fi
 
 echo -e "Found ${#urls[@]} URLs to test"
 
-# 4. Ask for SCENARIO if API tests
+# 4. Ask for SCENARIO
+scenarios=(
+    "1iter-1vu"
+    "20iter-1vu (default)"
+    "100iter-1vu"
+)
+selected_scenario=$(show_choice_prompt "Which scenario?" "${scenarios[@]}")
+selected_scenario="${selected_scenario% (default)}"
+
 if [ "$test_type_folder" == "API" ]; then
+    # API tests support more scenarios
     scenarios=(
         "1iter"
         "20iter-1vu"
@@ -112,17 +121,6 @@ if [ "$test_type_folder" == "API" ]; then
     )
     selected_scenario=$(show_choice_prompt "Which scenario?" "${scenarios[@]}")
     selected_scenario="${selected_scenario% (default)}"
-else
-    # For UI tests, still use config files
-    config_dir="$test_type_root/configs"
-    mapfile -t configs < <(find "$config_dir" -name "*.json" -exec basename {} \;)
-    
-    if [ ${#configs[@]} -eq 0 ]; then
-        echo "No config files found in $config_dir"
-        exit 1
-    fi
-    
-    selected_config=$(show_choice_prompt "Which config file?" "${configs[@]}")
 fi
 
 # 5. Ask for test range
@@ -154,7 +152,9 @@ if [ "$test_type_folder" == "API" ]; then
     fi
     
     echo -e "\nReady to run ${#tests_to_run[@]} test(s) with scenario $selected_scenario."
-else
+fi
+
+if [ "$test_type_folder" == "UI" ]; then
     echo -e "\nTest range options:"
     echo "1: Test all ${#urls[@]} URLs"
     echo "2: Test specific range"
@@ -178,7 +178,7 @@ else
         test_names_to_test=("${test_names[@]}")
     fi
     
-    echo -e "\nReady to run ${#urls_to_test[@]} test(s) with config $selected_config."
+    echo -e "\nReady to run ${#urls_to_test[@]} test(s) with scenario $selected_scenario."
 fi
 
 read -p "Enter release name (e.g., v1.2.3, sprint-45): " release
@@ -233,8 +233,7 @@ if [ "$test_type_folder" == "API" ]; then
         ((counter++))
     done
 else
-    echo -e "\nUI tests will run with config: $selected_config\n"
-    scenario="${selected_config%.json}"
+    echo -e "\nUI tests will run with scenario: $selected_scenario\n"
     
     for i in "${!urls_to_test[@]}"; do
         url="${urls_to_test[$i]}"
@@ -244,13 +243,13 @@ else
         
         echo -e "\n[$counter/${#urls_to_test[@]}] Testing: $url"
         echo "  TestName: $test_name"
-        echo "  Config: $selected_config"
+        echo "  Scenario: $selected_scenario"
         echo "  testid: $testid"
         echo "  release: $release"
         echo "  buildId: $build_id"
         
         docker exec \
-            -e SCENARIO="$scenario" \
+            -e SCENARIO="$selected_scenario" \
             -e url="$url" \
             -e testName="$test_name" \
             -e testType="$test_type_folder" \
