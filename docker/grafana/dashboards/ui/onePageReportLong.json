@@ -85,7 +85,7 @@
           "type": "influxdb",
           "uid": "P5697886F9CA74929"
         },
-          "query": "from(bucket: \"k6\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r._measurement == \"browser_web_vital_lcp\" and\r\n    r._field == \"value\" and\r\n    r[\"group\"] != \"::setup\" and\r\n    r[\"release\"] =~ /${release:regex}/ and\r\n    r[\"testName\"] =~ /${testName:regex}/ and\r\n    r[\"project\"] =~ /${project:regex}/ and\r\n    r[\"scenario\"] =~ /${scenario:regex}/\r\n  )\r\n  |> keep(columns: [\"testid\"])\r\n  |> group()\r\n  |> unique(column: \"testid\")\r\n  |> yield(name: \"testid\")\r\n",
+          "query": "from(bucket: \"k6\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) =>\r\n    r._measurement == \"browser_web_vital_lcp\" and\r\n    r._field == \"value\" and\r\n    r[\"group\"] != \"::setup\" and\r\n    r[\"release\"] =~ /${release:regex}/ and\r\n    r[\"testName\"] =~ /${testName:regex}/ and\r\n    r[\"project\"] =~ /${project:regex}/ and\r\n    r[\"scenario\"] =~ /${scenario:regex}/\r\n  )\r\n  |> keep(columns: [\"testName\"])\r\n  |> group()\r\n  |> unique(column: \"testName\")\r\n  |> yield(name: \"testName\")\r\n",
           "refId": "A"
         }
       ],
@@ -1173,7 +1173,7 @@
           "type": "influxdb",
           "uid": "P5697886F9CA74929"
         },
-        "definition": "import \"influxdata/influxdb/schema\"\r\n\r\nschema.tagValues(\r\n  bucket: v.defaultBucket,\r\n  tag: \"testName\",\r\n  predicate: (r) => r.project =~ /^${project:regex}$/\r\n)",
+        "definition": "import \"influxdata/influxdb/schema\"\n\nschema.tagValues(\n  bucket: v.defaultBucket,\n  tag: \"testName\",\n  predicate: (r) => r.project =~ /^${project:regex}$/ and r.testType == \"K6-UI\"\n)",
         "includeAll": false,
         "label": "Test",
         "name": "testName",
@@ -1272,7 +1272,7 @@
           "90": "d",
           "91": "\"",
           "92": ")",
-          "query": "import \"influxdata/influxdb/schema\"\r\n\r\nschema.tagValues(\r\n  bucket: v.defaultBucket,\r\n  tag: \"testName\",\r\n  predicate: (r) => r.project =~ /^${project:regex}$/\r\n)"
+          "query": "import \"influxdata/influxdb/schema\"\r\n\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"testName\", predicate: (r) => r.project =~ /^${project:regex}$/ and r.testType == \"K6-UI\")\r\n"
         },
         "refresh": 1,
         "regex": "",
@@ -1451,7 +1451,4 @@
   "uid": "adsshnf",
   "version": 6
 }
-
-
-
 

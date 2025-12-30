@@ -122,6 +122,7 @@ Pop-Location
 Write-Host "All containers started." -ForegroundColor Green
 
 # 7. Grafana UID step (all dashboard .json)
+Start-Sleep -Seconds 5
 Write-Host "`n[7/9] Grafana setup required: Data source UID fix" 
 Write-Host "   - Grafana is now running at http://localhost:3000"       -ForegroundColor Yellow
 Write-Host "   - Log in with username: admin / password: admin"         -ForegroundColor Yellow
@@ -156,7 +157,7 @@ $runSample = Read-Host "Do you want to run the sample tests now? [Y/N]"
 if ($runSample -eq "Y" -or $runSample -eq "y" -or $runSample -eq "") {
     Write-Host "`n--- Running API Sample Test (inline simple test) ---" -ForegroundColor Cyan
     docker exec k6 k6 run /tests/API/apiSample.js `
-        --tag testid=K6-API-apiSample `
+        --tag testName=K6-API-apiSample `
         --tag project=quickPizza `
         --tag testType=K6-API `
         --tag release=setup `
@@ -182,7 +183,7 @@ if ($runSample -eq "Y" -or $runSample -eq "y" -or $runSample -eq "") {
 }
 else {
     Write-Host "Skipped sample tests. You can run them later with:" -ForegroundColor Yellow
-    Write-Host "  API Test:  docker exec k6 k6 run /tests/API/apiSample.js --tag testid=K6-API-apiSample --tag project=quickPizza --tag testType=K6-API --tag release=setup --tag buildId=00000000" -ForegroundColor Cyan
+    Write-Host "  API Test:  docker exec k6 k6 run /tests/API/apiSample.js --tag testName=K6-API-apiSample --tag project=quickPizza --tag testType=K6-API --tag release=setup --tag buildId=00000000" -ForegroundColor Cyan
     Write-Host "  API Full:  docker exec k6 k6 run /tests/API/pizza/getDoughs/getDoughsTest.js -e SCENARIO=100iter-5vu" -ForegroundColor Cyan
     Write-Host "  UI Test:   docker exec -it k6 k6 run /tests/UI/uiSample.ts --tag testName=K6-UI-quickPizzaSample --tag project=quickPizza --tag testType=K6-UI --tag release=setup --tag buildId=00000000" -ForegroundColor Cyan
 }

@@ -20,7 +20,34 @@ show_choice_prompt() {
             echo "$((i+1)): ${options[$i]}" >&2
         done
         
-        read -p "Enter number: " choice
+        # Check if there's a default option
+        local has_default=false
+        for opt in "${options[@]}"; do
+            if [[ "$opt" =~ \(default\) ]]; then
+                has_default=true
+                break
+            fi
+        done
+        
+        if [ "$has_default" = true ]; then
+            read -p "Enter number (default: press Enter): " choice
+        else
+            read -p "Enter number: " choice
+        fi
+        
+        # Check for empty input (default selection)
+        if [ -z "$choice" ]; then
+            # Find the option with (default) and return it
+            for opt in "${options[@]}"; do
+                if [[ "$opt" =~ \(default\) ]]; then
+                    echo "$opt"
+                    return 0
+                fi
+            done
+            # If no default found, select first option
+            echo "${options[0]}"
+            return 0
+        fi
         
         if [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le "${#options[@]}" ]; then
             echo "${options[$((choice-1))]}"
@@ -100,14 +127,6 @@ fi
 echo -e "Found ${#urls[@]} URLs to test"
 
 # 4. Ask for SCENARIO
-scenarios=(
-    "1iter-1vu"
-    "20iter-1vu (default)"
-    "100iter-1vu"
-)
-selected_scenario=$(show_choice_prompt "Which scenario?" "${scenarios[@]}")
-selected_scenario="${selected_scenario% (default)}"
-
 if [ "$test_type_folder" == "API" ]; then
     # API tests support more scenarios
     scenarios=(
@@ -118,6 +137,15 @@ if [ "$test_type_folder" == "API" ]; then
         "100iter-1vu"
         "100iter-5vu"
         "100iter-10vu"
+    )
+    selected_scenario=$(show_choice_prompt "Which scenario?" "${scenarios[@]}")
+    selected_scenario="${selected_scenario% (default)}"
+else
+    # UI scenarios
+    scenarios=(
+        "1iter-1vu"
+        "20iter-1vu (default)"
+        "10iter-1vu"
     )
     selected_scenario=$(show_choice_prompt "Which scenario?" "${scenarios[@]}")
     selected_scenario="${selected_scenario% (default)}"
@@ -211,21 +239,21 @@ if [ "$test_type_folder" == "API" ]; then
         category="${categories_to_run[$i]}"
         testid="$project-$test_name"
         
-        echo -e "\n[$counter/${#tests_to_run[@]}] Testing: $test_name"
+        echo -e "\n[$counter/${#tests_to_run[@]}] Testing: $testid"
         echo "  Category: $category"
         echo "  TestName: $test_name"
         echo "  Scenario: $selected_scenario"
-        echo "  testid: $testid"
+        echo "  testName: $test_name"
         echo "  release: $release"
         echo "  buildId: $build_id"
         
         docker exec \
             -e SCENARIO="$selected_scenario" \
             k6 k6 run "/tests/$test_type_folder/$test_path" \
+            --tag testName="$test_name" \
             --tag testid="$testid" \
             --tag project="$project" \
             --tag testType="$test_type" \
-            --tag testName="$test_name" \
             --tag release="$release" \
             --tag buildId="$build_id"
         
@@ -244,7 +272,7 @@ else
         echo -e "\n[$counter/${#urls_to_test[@]}] Testing: $url"
         echo "  TestName: $test_name"
         echo "  Scenario: $selected_scenario"
-        echo "  testid: $testid"
+        echo "  testName: $test_name"
         echo "  release: $release"
         echo "  buildId: $build_id"
         
@@ -255,10 +283,10 @@ else
             -e testType="$test_type_folder" \
             -e project="$project" \
             -it k6 k6 run "$container_path" \
+            --tag testName="$test_name" \
             --tag testid="$testid" \
             --tag project="$project" \
             --tag testType="$test_type" \
-            --tag testName="$test_name" \
             --tag release="$release" \
             --tag buildId="$build_id"
         

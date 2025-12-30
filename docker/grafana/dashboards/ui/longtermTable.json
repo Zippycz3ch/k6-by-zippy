@@ -437,7 +437,7 @@
           "type": "influxdb",
           "uid": "P5697886F9CA74929"
         },
-        "definition": "import \"influxdata/influxdb/schema\"\r\n\r\nschema.tagValues(\r\n  bucket: v.defaultBucket,\r\n  tag: \"testName\",\r\n  predicate: (r) => r.project =~ /^${project:regex}$/\r\n)",
+        "definition": "import \"influxdata/influxdb/schema\"\n\nschema.tagValues(\n  bucket: v.defaultBucket,\n  tag: \"testName\",\n  predicate: (r) => r.project =~ /^${project:regex}$/ and r.testType == \"K6-UI\"\n)",
         "includeAll": true,
         "label": "Test",
         "multi": true,
@@ -537,7 +537,7 @@
           "90": "d",
           "91": "\"",
           "92": ")",
-          "query": "import \"influxdata/influxdb/schema\"\r\n\r\nschema.tagValues(\r\n  bucket: v.defaultBucket,\r\n  tag: \"testName\",\r\n  predicate: (r) => r.project =~ /^${project:regex}$/\r\n)"
+          "query": "import \"influxdata/influxdb/schema\"\r\n\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"testName\", predicate: (r) => r.project =~ /^${project:regex}$/ and r.testType == \"K6-UI\")\r\n"
         },
         "refresh": 1,
         "regex": "",
@@ -715,7 +715,4 @@
   "uid": "ad2mcls",
   "version": 10
 }
-
-
-
 

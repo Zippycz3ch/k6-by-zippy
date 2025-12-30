@@ -14,7 +14,25 @@ function Show-ChoicePrompt {
             Write-Host "$($i + 1): $($Options[$i])"
         }
         
-        $choice = Read-Host "Enter number"
+        # Check if there's a default option
+        $hasDefault = $Options | Where-Object { $_ -match '\(default\)' }
+        if ($hasDefault) {
+            $choice = Read-Host "Enter number (default: press Enter)"
+        }
+        else {
+            $choice = Read-Host "Enter number"
+        }
+        
+        # Check for empty input (default selection)
+        if ([string]::IsNullOrWhiteSpace($choice)) {
+            # Find the option with (default) and return it
+            $defaultOption = $Options | Where-Object { $_ -match '\(default\)' }
+            if ($defaultOption) {
+                return $defaultOption
+            }
+            # If no default found, select first option
+            return $Options[0]
+        }
         
         if ($choice -match '^\d+$' -and [int]$choice -ge 1 -and [int]$choice -le $Options.Length) {
             return $Options[[int]$choice - 1]
@@ -107,14 +125,6 @@ else {
 }
 
 # 4. Ask for SCENARIO
-$scenarios = @(
-    "1iter-1vu",
-    "20iter-1vu (default)",
-    "100iter-1vu"
-)
-$selectedScenario = Show-ChoicePrompt -Message "Which scenario?" -Options $scenarios
-$selectedScenario = $selectedScenario -replace " \(default\)", ""
-
 if ($testTypeFolder -eq "API") {
     # API tests support more scenarios
     $scenarios = @(
@@ -125,6 +135,16 @@ if ($testTypeFolder -eq "API") {
         "100iter-1vu",
         "100iter-5vu",
         "100iter-10vu"
+    )
+    $selectedScenario = Show-ChoicePrompt -Message "Which scenario?" -Options $scenarios
+    $selectedScenario = $selectedScenario -replace " \(default\)", ""
+}
+else {
+    # UI scenarios
+    $scenarios = @(
+        "1iter-1vu",
+        "20iter-1vu (default)",
+        "10iter-1vu"
     )
     $selectedScenario = Show-ChoicePrompt -Message "Which scenario?" -Options $scenarios
     $selectedScenario = $selectedScenario -replace " \(default\)", ""
@@ -235,21 +255,21 @@ if ($testTypeFolder -eq "API") {
         $testid = "$project-$testName"
         
         Write-Host ""
-        Write-Host "[$counter/$($testsToRun.Count)] Testing: $testName"
+        Write-Host "[$counter/$($testsToRun.Count)] Testing: $testid"
         Write-Host "  Category: $category"
         Write-Host "  TestName: $testName"
         Write-Host "  Scenario: $selectedScenario"
-        Write-Host "  testid: $testid"
+        Write-Host "  testName: $testName"
         Write-Host "  release: $release"
         Write-Host "  buildId: $buildId"
         
         docker exec `
             -e SCENARIO="$selectedScenario" `
             k6 k6 run "/tests/$testTypeFolder/$testPath" `
+            --tag testName="$testName" `
             --tag testid="$testid" `
             --tag project="$project" `
             --tag testType="$testType" `
-            --tag testName="$testName" `
             --tag release="$release" `
             --tag buildId="$buildId"
         
@@ -272,7 +292,7 @@ else {
         Write-Host "[$counter/$($urlsToTest.Count)] Testing: $url"
         Write-Host "  TestName: $testName"
         Write-Host "  Scenario: $selectedScenario"
-        Write-Host "  testid: $testid"
+        Write-Host "  testName: $testName"
         Write-Host "  release: $release"
         Write-Host "  buildId: $buildId"
         
@@ -283,10 +303,10 @@ else {
             -e testType="$testTypeFolder" `
             -e project="$project" `
             -it k6 k6 run "$containerPath" `
+            --tag testName="$testName" `
             --tag testid="$testid" `
             --tag project="$project" `
             --tag testType="$testType" `
-            --tag testName="$testName" `
             --tag release="$release" `
             --tag buildId="$buildId"
         
