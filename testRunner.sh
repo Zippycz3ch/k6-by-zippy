@@ -78,6 +78,16 @@ fi
 project="quickPizza"
 echo -e "Selected test type: $test_type\n"
 
+# Read .env file for BASEURL
+base_url_from_env=""
+if [ -f "$(dirname "$0")/.env" ]; then
+    while IFS='=' read -r key value; do
+        if [[ "$key" == "BASEURL" ]]; then
+            base_url_from_env="${value//[$'\r\n']}"
+        fi
+    done < "$(dirname "$0")/.env"
+fi
+
 # 2. Find test root and files
 repo_root="$(cd "$(dirname "$0")" && pwd)"
 test_type_root="$repo_root/tests/$test_type_folder"
@@ -119,12 +129,12 @@ else
         exit 1
     fi
     
-    # Parse JSON and extract URLs and testNames
-    mapfile -t urls < <(jq -r '.[].url' "$data_file")
+    # Parse JSON and extract paths and testNames
+    mapfile -t paths < <(jq -r '.[].path' "$data_file")
     mapfile -t test_names < <(jq -r '.[].testName' "$data_file")
 fi
 
-echo -e "Found ${#urls[@]} URLs to test"
+echo -e "Found ${#paths[@]} path(s) to test"
 
 # 4. Ask for SCENARIO
 if [ "$test_type_folder" == "API" ]; then
@@ -184,29 +194,29 @@ fi
 
 if [ "$test_type_folder" == "UI" ]; then
     echo -e "\nTest range options:"
-    echo "1: Test all ${#urls[@]} URLs"
+    echo "1: Test all ${#paths[@]} paths"
     echo "2: Test specific range"
     
     read -p "Enter number (default: 1): " range_choice
     range_choice=${range_choice:-1}
     
-    declare -a urls_to_test
+    declare -a paths_to_test
     declare -a test_names_to_test
     
     if [ "$range_choice" == "2" ]; then
-        read -p "Start index (1-${#urls[@]}): " start_idx
-        read -p "End index (1-${#urls[@]}): " end_idx
+        read -p "Start index (1-${#paths[@]}): " start_idx
+        read -p "End index (1-${#paths[@]}): " end_idx
         
         for ((i=$((start_idx-1)); i<$end_idx; i++)); do
-            urls_to_test+=("${urls[$i]}")
+            paths_to_test+=("${paths[$i]}")
             test_names_to_test+=("${test_names[$i]}")
         done
     else
-        urls_to_test=("${urls[@]}")
+        paths_to_test=("${paths[@]}")
         test_names_to_test=("${test_names[@]}")
     fi
     
-    echo -e "\nReady to run ${#urls_to_test[@]} test(s) with scenario $selected_scenario."
+    echo -e "\nReady to run ${#paths_to_test[@]} test(s) with scenario $selected_scenario."
 fi
 
 read -p "Enter release name (e.g., v1.2.3, sprint-45): " release
@@ -263,13 +273,24 @@ if [ "$test_type_folder" == "API" ]; then
 else
     echo -e "\nUI tests will run with scenario: $selected_scenario\n"
     
-    for i in "${!urls_to_test[@]}"; do
-        url="${urls_to_test[$i]}"
+    # Use BASEURL from .env file
+    if [ -n "$base_url_from_env" ]; then
+        base_url="$base_url_from_env"
+        echo "Using BASEURL from .env: $base_url"
+    else
+        read -p "Enter base URL (default: http://quickpizza:3333): " base_url
+        base_url=${base_url:-http://quickpizza:3333}
+    fi
+    echo ""
+    
+    for i in "${!paths_to_test[@]}"; do
+        path="${paths_to_test[$i]}"
         test_name="${test_names_to_test[$i]}"
         testid="$project-$test_name"
         container_path="/tests/$test_type_folder/uiTest.js"
+        full_url="$base_url$path"
         
-        echo -e "\n[$counter/${#urls_to_test[@]}] Testing: $url"
+        echo -e "\n[$counter/${#paths_to_test[@]}] Testing: $full_url"
         echo "  TestName: $test_name"
         echo "  Scenario: $selected_scenario"
         echo "  testName: $test_name"
@@ -278,7 +299,8 @@ else
         
         docker exec \
             -e SCENARIO="$selected_scenario" \
-            -e url="$url" \
+            -e BASEURL="$base_url" \
+            -e path="$path" \
             -e testName="$test_name" \
             -e testType="$test_type_folder" \
             -e project="$project" \
@@ -318,7 +340,7 @@ if [ "$test_type_folder" == "API" ]; then
         echo -e "${GREEN}All $total_count tests passed!${NC}"
     fi
 else
-    total_count=${#urls_to_test[@]}
+    total_count=${#paths_to_test[@]}
     for i in "${!exit_codes[@]}"; do
         if [ "${exit_codes[$i]}" -ne 0 ]; then
             ((failed_count++))
@@ -329,43 +351,7 @@ else
         echo -e "${RED}Some tests FAILED ($failed_count/$total_count):${NC}\n"
         for i in "${!exit_codes[@]}"; do
             if [ "${exit_codes[$i]}" -ne 0 ]; then
-                echo -e "  ${RED}- [${test_names_to_test[$i]}] ${urls_to_test[$i]} | Exit: ${exit_codes[$i]}${NC}"
-            fi
-        done
-    else
-        echo -e "${GREEN}All $total_count tests passed!${NC}"
-    fi
-fi
-    total_count=${#tests_to_run[@]}
-    for i in "${!exit_codes[@]}"; do
-        if [ "${exit_codes[$i]}" -ne 0 ]; then
-            ((failed_count++))
-        fi
-    done
-    
-    if [ $failed_count -gt 0 ]; then
-        echo -e "${RED}Some tests FAILED ($failed_count/$total_count):${NC}\n"
-        for i in "${!exit_codes[@]}"; do
-            if [ "${exit_codes[$i]}" -ne 0 ]; then
-                echo -e "  ${RED}- [${names_to_run[$i]}] ${categories_to_run[$i]} | Exit: ${exit_codes[$i]}${NC}"
-            fi
-        done
-    else
-        echo -e "${GREEN}All $total_count tests passed!${NC}"
-    fi
-else
-    total_count=${#urls_to_test[@]}
-    for i in "${!exit_codes[@]}"; do
-        if [ "${exit_codes[$i]}" -ne 0 ]; then
-            ((failed_count++))
-        fi
-    done
-    
-    if [ $failed_count -gt 0 ]; then
-        echo -e "${RED}Some tests FAILED ($failed_count/$total_count):${NC}\n"
-        for i in "${!exit_codes[@]}"; do
-            if [ "${exit_codes[$i]}" -ne 0 ]; then
-                echo -e "  ${RED}- [${test_names_to_test[$i]}] ${urls_to_test[$i]} | Exit: ${exit_codes[$i]}${NC}"
+                echo -e "  ${RED}- [${test_names_to_test[$i]}] ${paths_to_test[$i]} | Exit: ${exit_codes[$i]}${NC}"
             fi
         done
     else

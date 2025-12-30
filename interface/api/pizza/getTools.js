@@ -9,7 +9,9 @@ export function getTools(token) {
     tags: { name: "Pizza/GetTools" },
   };
 
-  const res = http.get(`${__ENV.BASEURL}/api/tools`, params);
+  const url = `${__ENV.BASEURL}/api/tools`;
+  console.log(`[API REQUEST] Full URL: ${url}`);
+  const res = http.get(url, params);
 
   const { data } = checkResponse(res, params.tags.name);
 

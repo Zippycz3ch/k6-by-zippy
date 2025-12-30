@@ -30,9 +30,12 @@ export const options = {
 export function setup() { }
 
 export async function test() {
-    const url = "https://quickpizza.grafana.com/";
+    const baseUrl = __ENV.BASEURL || "http://quickpizza:3333";
+    const path = "/";
+    const url = `${baseUrl}${path}`;
     const testName = "sample-home";
 
+    console.log(`[UI TEST] Full URL: ${url}`);
     console.log(`--- Starting: ${testName} | url: ${url} | ITER ${__ITER} | VU ${__VU} ---`);
     const page = await prepareUI();
 

@@ -67,6 +67,17 @@ $project = "quickPizza"
 Write-Host "Selected test type: $testType"
 Write-Host ""
 
+# Read .env file for BASEURL
+$envFile = Join-Path $PSScriptRoot ".env"
+$baseUrlFromEnv = $null
+if (Test-Path $envFile) {
+    Get-Content $envFile | ForEach-Object {
+        if ($_ -match '^BASEURL=(.+)$') {
+            $baseUrlFromEnv = $matches[1].Trim()
+        }
+    }
+}
+
 # 2. Find test root and files
 if ($PSScriptRoot) {
     $repoRoot = $PSScriptRoot
@@ -118,10 +129,10 @@ else {
     }
     
     $dataContent = Get-Content $dataFile -Raw | ConvertFrom-Json
-    $urls = $dataContent | ForEach-Object { $_.url }
+    $paths = $dataContent | ForEach-Object { $_.path }
     $testNames = $dataContent | ForEach-Object { $_.testName }
     
-    Write-Host "Found $($urls.Count) URL(s) to test"
+    Write-Host "Found $($paths.Count) path(s) to test"
 }
 
 # 4. Ask for SCENARIO
@@ -189,7 +200,7 @@ if ($testTypeFolder -eq "API") {
 if ($testTypeFolder -eq "UI") {
     Write-Host ""
     Write-Host "Test range options:"
-    Write-Host "1: Test all $($urls.Count) URLs"
+    Write-Host "1: Test all $($paths.Count) paths"
     Write-Host "2: Test specific range"
     
     $rangeChoice = Read-Host "Enter number (default: 1)"
@@ -197,25 +208,25 @@ if ($testTypeFolder -eq "UI") {
         $rangeChoice = "1"
     }
     
-    $urlsToTest = @()
+    $pathsToTest = @()
     $testNamesToTest = @()
     
     if ($rangeChoice -eq "2") {
-        $startIdx = Read-Host "Start index (1-$($urls.Count))"
-        $endIdx = Read-Host "End index (1-$($urls.Count))"
+        $startIdx = Read-Host "Start index (1-$($paths.Count))"
+        $endIdx = Read-Host "End index (1-$($paths.Count))"
         
         for ($i = [int]$startIdx - 1; $i -lt [int]$endIdx; $i++) {
-            $urlsToTest += $urls[$i]
+            $pathsToTest += $paths[$i]
             $testNamesToTest += $testNames[$i]
         }
     }
     else {
-        $urlsToTest = $urls
+        $pathsToTest = $paths
         $testNamesToTest = $testNames
     }
     
     Write-Host ""
-    Write-Host "Ready to run $($urlsToTest.Count) test(s) with scenario $selectedScenario."
+    Write-Host "Ready to run $($pathsToTest.Count) test(s) with scenario $selectedScenario."
 }
 
 $release = Read-Host "Enter release name (e.g. v1.2.3 or sprint-45)"
@@ -282,14 +293,28 @@ else {
     Write-Host "UI tests will run with scenario: $selectedScenario"
     Write-Host ""
     
-    for ($i = 0; $i -lt $urlsToTest.Count; $i++) {
-        $url = $urlsToTest[$i]
+    # Use BASEURL from .env file
+    if ($baseUrlFromEnv) {
+        $baseUrl = $baseUrlFromEnv
+        Write-Host "Using BASEURL from .env: $baseUrl"
+    }
+    else {
+        $baseUrl = Read-Host "Enter base URL (default: http://quickpizza:3333)"
+        if ([string]::IsNullOrWhiteSpace($baseUrl)) {
+            $baseUrl = "http://quickpizza:3333"
+        }
+    }
+    Write-Host ""
+    
+    for ($i = 0; $i -lt $pathsToTest.Count; $i++) {
+        $path = $pathsToTest[$i]
         $testName = $testNamesToTest[$i]
         $testid = "$project-$testName"
         $containerPath = "/tests/$testTypeFolder/uiTest.js"
+        $fullUrl = "$baseUrl$path"
         
         Write-Host ""
-        Write-Host "[$counter/$($urlsToTest.Count)] Testing: $url"
+        Write-Host "[$counter/$($pathsToTest.Count)] Testing: $fullUrl"
         Write-Host "  TestName: $testName"
         Write-Host "  Scenario: $selectedScenario"
         Write-Host "  testName: $testName"
@@ -298,7 +323,8 @@ else {
         
         docker exec `
             -e SCENARIO="$selectedScenario" `
-            -e url="$url" `
+            -e BASEURL="$baseUrl" `
+            -e path="$path" `
             -e testName="$testName" `
             -e testType="$testTypeFolder" `
             -e project="$project" `
@@ -342,7 +368,7 @@ if ($testTypeFolder -eq "API") {
     }
 }
 else {
-    $totalCount = $urlsToTest.Count
+    $totalCount = $pathsToTest.Count
     for ($i = 0; $i -lt $exitCodes.Count; $i++) {
         if ($exitCodes[$i] -ne 0) {
             $failedCount++
@@ -354,7 +380,7 @@ else {
         Write-Host ""
         for ($i = 0; $i -lt $exitCodes.Count; $i++) {
             if ($exitCodes[$i] -ne 0) {
-                Write-Host "  - [$($testNamesToTest[$i])] $($urlsToTest[$i]) | Exit: $($exitCodes[$i])" -ForegroundColor Red
+                Write-Host "  - [$($testNamesToTest[$i])] $($pathsToTest[$i]) | Exit: $($exitCodes[$i])" -ForegroundColor Red
             }
         }
     }

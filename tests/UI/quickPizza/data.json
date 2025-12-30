@@ -1,14 +1,14 @@
 [
   {
-    "url": "https://quickpizza.grafana.com/",
+    "path": "/",
     "testName": "home"
   },
   {
-    "url": "https://quickpizza.grafana.com/admin",
+    "path": "/admin",
     "testName": "admin"
   },
   {
-    "url": "https://quickpizza.grafana.com/login",
+    "path": "/login",
     "testName": "loginPage"
   }
 ]

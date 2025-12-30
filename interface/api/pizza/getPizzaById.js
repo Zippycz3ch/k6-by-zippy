@@ -9,7 +9,9 @@ export function getPizzaById(token, pizzaId) {
     tags: { name: "Pizza/GetById" },
   };
 
-  const res = http.get(`${__ENV.BASEURL}/api/pizza/${pizzaId}`, params);
+  const url = `${__ENV.BASEURL}/api/pizza/${pizzaId}`;
+  console.log(`[API REQUEST] Full URL: ${url}`);
+  const res = http.get(url, params);
 
   const { data } = checkResponse(res, params.tags.name);
 

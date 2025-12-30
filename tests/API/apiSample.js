@@ -32,6 +32,7 @@ export function apiSampleTest(data) {
 
   // Make API request with auth header
   const url = `${baseUrl}/api/doughs`;
+  console.log(`[API TEST] Full URL: ${url}`);
   const params = {
     headers: {
       Authorization: `Bearer ${token}`,

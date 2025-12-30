@@ -10,7 +10,9 @@ export function postPizza(token) {
     tags: { name: "Pizza/GetRecommendation" },
   };
 
-  const res = http.post(`${__ENV.BASEURL}/api/pizza`, JSON.stringify({}), params);
+  const url = `${__ENV.BASEURL}/api/pizza`;
+  console.log(`[API REQUEST] Full URL: ${url}`);
+  const res = http.post(url, JSON.stringify({}), params);
 
   const { data } = checkResponse(res, params.tags.name);
 

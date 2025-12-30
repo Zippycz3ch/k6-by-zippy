@@ -9,7 +9,9 @@ export function getDoughs(token) {
     tags: { name: "Pizza/GetDoughs" },
   };
 
-  const res = http.get(`${__ENV.BASEURL}/api/doughs`, params);
+  const url = `${__ENV.BASEURL}/api/doughs`;
+  console.log(`[API REQUEST] Full URL: ${url}`);
+  const res = http.get(url, params);
 
   const { data } = checkResponse(res, params.tags.name);
 
