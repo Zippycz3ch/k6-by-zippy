@@ -34,24 +34,10 @@ export const options = {
   },
 };
 
-export function setup() {
-  console.log("🍕 Setup: Pizza Recommendation Test");
-  console.log(`Base URL: ${__ENV.BASEURL}`);
-
-  // Prepare shared data for all VUs
-  const data = {
-    token: __ENV.PIZZA_TOKEN,
-  };
-
-  return data;
-}
-
-export function postPizzaTest(data) {
+export function postPizzaTest() {
   console.log(`--- VUs Started | ITER ${__ITER} | VU ${__VU} ---`);
 
-  const token = data.token;
-
-  const pizzaData = postPizza(token);
+  const pizzaData = postPizza();
 
   if (pizzaData?.pizza?.name) {
     console.log(`✓ Pizza: "${pizzaData.pizza.name}" | Calories: ${pizzaData.calories} | Vegetarian: ${pizzaData.vegetarian}`);

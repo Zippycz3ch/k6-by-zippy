@@ -1,10 +1,10 @@
 import http from "k6/http";
 import { check200 } from "../../../helpers/API/checkResponse.js";
 
-export function getTools(token) {
+export function getTools() {
   const params = {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${__ENV.PIZZA_TOKEN}`,
     },
     tags: { name: "Pizza/GetTools" },
   };

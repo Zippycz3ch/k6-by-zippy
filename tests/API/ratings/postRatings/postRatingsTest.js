@@ -36,26 +36,21 @@ export const options = {
 };
 
 export function setup() {
-  const token = __ENV.PIZZA_TOKEN;
-  const pizza = postPizza(token);
+  const pizza = postPizza();
 
-  const data = {
-    token: token,
+  return {
     pizzaId: pizza?.pizza?.id,
   };
-
-  return data;
 }
 
 export function postRatingsTest(data) {
   console.log(`--- VUs Started | ITER ${__ITER} | VU ${__VU} ---`);
 
-  const token = data.token;
   const pizzaId = data.pizzaId;
 
   if (pizzaId) {
     const stars = Math.floor(Math.random() * 5) + 1;
-    const rating = postRatings(token, pizzaId, stars);
+    const rating = postRatings(pizzaId, stars);
 
     if (rating?.id) {
       console.log(`Created rating ID: ${rating.id} - ${stars} stars for pizza ${pizzaId}`);

@@ -34,17 +34,10 @@ export const options = {
   },
 };
 
-export function setup() {
-  return {
-    token: __ENV.PIZZA_TOKEN,
-  };
-}
-
-export function getIngredientsTest(data) {
+export function getIngredientsTest() {
   console.log(`--- VUs Started | ITER ${__ITER} | VU ${__VU} ---`);
 
-  const token = data.token;
-  const ingredients = getIngredients(token, "topping");
+  const ingredients = getIngredients("topping");
 
   if (ingredients?.ingredients) {
     console.log(`Retrieved ${ingredients.ingredients.length} topping ingredients`);

@@ -34,17 +34,10 @@ export const options = {
   },
 };
 
-export function setup() {
-  return {
-    token: __ENV.PIZZA_TOKEN,
-  };
-}
-
-export function getToolsTest(data) {
+export function getToolsTest() {
   console.log(`--- VUs Started | ITER ${__ITER} | VU ${__VU} ---`);
 
-  const token = data.token;
-  const tools = getTools(token);
+  const tools = getTools();
 
   if (tools?.tools) {
     console.log(`Retrieved ${tools.tools.length} tools`);

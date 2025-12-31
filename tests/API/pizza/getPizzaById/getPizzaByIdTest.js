@@ -36,25 +36,20 @@ export const options = {
 };
 
 export function setup() {
-  const token = __ENV.PIZZA_TOKEN;
-  const pizza = postPizza(token);
+  const pizza = postPizza();
 
-  const data = {
-    token: token,
+  return {
     pizzaId: pizza?.pizza?.id,
   };
-
-  return data;
 }
 
 export function getPizzaByIdTest(data) {
   console.log(`--- VUs Started | ITER ${__ITER} | VU ${__VU} ---`);
 
-  const token = data.token;
   const pizzaId = data.pizzaId;
 
   if (pizzaId) {
-    const pizza = getPizzaById(token, pizzaId);
+    const pizza = getPizzaById(pizzaId);
     if (pizza) {
       console.log(`Retrieved pizza ID: ${pizzaId} - "${pizza.name}"`);
     }
