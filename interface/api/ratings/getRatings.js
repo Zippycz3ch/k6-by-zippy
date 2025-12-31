@@ -1,5 +1,5 @@
 import http from "k6/http";
-import { checkResponse } from "../../../helpers/API/checkResponse.js";
+import { check200 } from "../../../helpers/API/checkResponse.js";
 
 export function getRatings(token) {
   const params = {
@@ -11,7 +11,7 @@ export function getRatings(token) {
 
   const res = http.get(`${__ENV.BASEURL}/api/ratings`, params);
 
-  const { data } = checkResponse(res, params.tags.name);
+  const { data } = check200(res, params.tags.name);
 
   return data;
 }

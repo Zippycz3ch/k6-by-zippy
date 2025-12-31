@@ -1,5 +1,5 @@
 import http from "k6/http";
-import { checkResponse } from "../../../helpers/API/checkResponse.js";
+import { check200 } from "../../../helpers/API/checkResponse.js";
 
 export function putRatings(token, ratingId, pizzaId, stars) {
   const payload = JSON.stringify({
@@ -17,7 +17,7 @@ export function putRatings(token, ratingId, pizzaId, stars) {
 
   const res = http.put(`${__ENV.BASEURL}/api/ratings/${ratingId}`, payload, params);
 
-  const { data } = checkResponse(res, params.tags.name);
+  const { data } = check200(res, params.tags.name);
 
   return data;
 }

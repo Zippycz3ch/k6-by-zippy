@@ -67,17 +67,6 @@ $project = "quickPizza"
 Write-Host "Selected test type: $testType"
 Write-Host ""
 
-# Read .env file for BASEURL
-$envFile = Join-Path $PSScriptRoot ".env"
-$baseUrlFromEnv = $null
-if (Test-Path $envFile) {
-    Get-Content $envFile | ForEach-Object {
-        if ($_ -match '^BASEURL=(.+)$') {
-            $baseUrlFromEnv = $matches[1].Trim()
-        }
-    }
-}
-
 # 2. Find test root and files
 if ($PSScriptRoot) {
     $repoRoot = $PSScriptRoot
@@ -292,25 +281,14 @@ else {
     Write-Host "UI tests will run with scenario: $selectedScenario"
     Write-Host ""
     
-    # Use BASEURL from .env file
-    if ($baseUrlFromEnv) {
-        $baseUrl = $baseUrlFromEnv
-        Write-Host "Using BASEURL from .env: $baseUrl"
-    }
-    else {
-        $baseUrl = Read-Host "Enter base URL"
-    }
-    Write-Host ""
-    
     for ($i = 0; $i -lt $pathsToTest.Count; $i++) {
         $path = $pathsToTest[$i]
         $testName = $testNamesToTest[$i]
         $testid = "$project-$testName"
         $containerPath = "/tests/$testTypeFolder/uiTest.js"
-        $fullUrl = "$baseUrl$path"
         
         Write-Host ""
-        Write-Host "[$counter/$($pathsToTest.Count)] Testing: $fullUrl"
+        Write-Host "[$counter/$($pathsToTest.Count)] Testing: $testName ($path)"
         Write-Host "  TestName: $testName"
         Write-Host "  Scenario: $selectedScenario"
         Write-Host "  release: $release"
@@ -318,7 +296,6 @@ else {
         
         docker exec `
             -e SCENARIO="$selectedScenario" `
-            -e BASEURL="$baseUrl" `
             -e path="$path" `
             -e testName="$testName" `
             -e testType="$testTypeFolder" `

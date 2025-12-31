@@ -1,27 +1,75 @@
 import { check } from "k6";
 
-export function checkResponse(res, tagName) {
-  const isSuccess = res.status >= 200 && res.status < 300;
-
-  if (!isSuccess) {
-    console.error(`${tagName} - API failed with status ${res.status}, response: ${res.body}`);
+function parseJsonData(res, tagName) {
+  if (!res.body || res.body.length === 0) {
+    return null;
   }
 
-  let jsonData = null;
-
-  // Only parse JSON if there's a body
-  if (res.body && res.body.length > 0) {
-    try {
-      jsonData = res.json();
-    } catch (e) {
-      console.error(`${tagName} - Failed to parse JSON: ${e.message}`);
-    }
+  try {
+    return res.json();
+  } catch (e) {
+    console.error(`${tagName} - Failed to parse JSON: ${e.message}`);
+    return null;
   }
+}
+
+export function check200(res, tagName) {
+  const data = parseJsonData(res, tagName);
 
   const checks = check(res, {
-    [`${tagName} - Succeeded:`]: (r) => r.status >= 200 && r.status < 300,
-    [`-${tagName} - Response status code is 2xx`]: (r) => r.status >= 200 && r.status < 300,
+    [`${tagName} - Status is 200`]: (r) => r.status === 200,
   });
 
-  return { checks, data: jsonData };
+  if (!checks) {
+    console.error(`${tagName} - Failed: status ${res.status}, body: ${res.body}`);
+  }
+
+  return { checks, data };
+}
+
+export function check201(res, tagName) {
+  const data = parseJsonData(res, tagName);
+
+  const checks = check(res, {
+    [`${tagName} - Status is 201`]: (r) => r.status === 201,
+  });
+
+  if (!checks) {
+    console.error(`${tagName} - Failed: status ${res.status}, body: ${res.body}`);
+  }
+
+  return { checks, data };
+}
+
+export function check400(res, tagName) {
+  const data = parseJsonData(res, tagName);
+
+  const checks = check(res, {
+    [`${tagName} - Status is 400`]: (r) => r.status === 400,
+    [`${tagName} - Has error message`]: () => data && data.error,
+  });
+
+  return { checks, data };
+}
+
+export function check401(res, tagName) {
+  const data = parseJsonData(res, tagName);
+
+  const checks = check(res, {
+    [`${tagName} - Status is 401`]: (r) => r.status === 401,
+    [`${tagName} - Has authentication error`]: () => data && data.error,
+  });
+
+  return { checks, data };
+}
+
+export function check403(res, tagName) {
+  const data = parseJsonData(res, tagName);
+
+  const checks = check(res, {
+    [`${tagName} - Status is 403`]: (r) => r.status === 403,
+    [`${tagName} - Has error message`]: () => data && data.error,
+  });
+
+  return { checks, data };
 }

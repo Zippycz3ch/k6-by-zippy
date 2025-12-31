@@ -1,5 +1,5 @@
 import http from "k6/http";
-import { checkResponse } from "../../../helpers/API/checkResponse.js";
+import { check201 } from "../../../helpers/API/checkResponse.js";
 
 export function postRatings(token, pizzaId, stars) {
   const payload = JSON.stringify({
@@ -19,7 +19,7 @@ export function postRatings(token, pizzaId, stars) {
   console.log(`[API REQUEST] Full URL: ${url}`);
   const res = http.post(url, payload, params);
 
-  const { data } = checkResponse(res, params.tags.name);
+  const { data } = check201(res, params.tags.name);
 
   return data;
 }

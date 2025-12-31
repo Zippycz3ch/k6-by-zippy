@@ -1,5 +1,5 @@
 import http from "k6/http";
-import { checkResponse } from "../../../helpers/API/checkResponse.js";
+import { check200 } from "../../../helpers/API/checkResponse.js";
 
 export function postPizza(token) {
   const params = {
@@ -14,7 +14,7 @@ export function postPizza(token) {
   console.log(`[API REQUEST] Full URL: ${url}`);
   const res = http.post(url, JSON.stringify({}), params);
 
-  const { data } = checkResponse(res, params.tags.name);
+  const { data } = check200(res, params.tags.name);
 
   return data;
 }

@@ -1,5 +1,5 @@
 import http from "k6/http";
-import { checkResponse } from "../../../helpers/API/checkResponse.js";
+import { check201 } from "../../../helpers/API/checkResponse.js";
 
 export function postUsers(username, password) {
   const payload = JSON.stringify({
@@ -16,7 +16,7 @@ export function postUsers(username, password) {
 
   const res = http.post(`${__ENV.BASEURL}/api/users`, payload, params);
 
-  const { data } = checkResponse(res, params.tags.name);
+  const { data } = check201(res, params.tags.name);
 
   return data;
 }

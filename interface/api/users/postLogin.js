@@ -1,5 +1,5 @@
 import http from "k6/http";
-import { checkResponse } from "../../../helpers/API/checkResponse.js";
+import { check200 } from "../../../helpers/API/checkResponse.js";
 
 export function postLogin(username, password, setCookie = false) {
   const payload = JSON.stringify({
@@ -19,7 +19,7 @@ export function postLogin(username, password, setCookie = false) {
 
   const res = http.post(url, payload, params);
 
-  const { data } = checkResponse(res, params.tags.name);
+  const { data } = check200(res, params.tags.name);
 
   return data;
 }
