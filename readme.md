@@ -24,6 +24,12 @@ git clone https://github.com/Zippycz3ch/k6-by-zippy
 cd k6-by-zippy
 ```
 
+**Configuration:**
+
+Environment variables are managed in the `.env` file:
+- `BASEURL` - Target application URL (default: `http://quickpizza:3333`)
+- `PIZZA_TOKEN` - API authentication token (default: `abcdef0123456789`)
+
 ### Windows
 
 ```powershell

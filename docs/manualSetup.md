@@ -21,6 +21,9 @@ If you want to setup everything manually, start each container step by step as f
 
 2. Update config files
 
+   - Edit `.env` file in the root directory:
+     - Set `BASEURL` (default: `http://quickpizza:3333`)
+     - Set `PIZZA_TOKEN` (default: `abcdef0123456789`)
    - Edit `docker/Dockerfile`:
      - Set `K6_InfluxDB_TOKEN` to the above value.
    - Edit `docker/grafana/provisioning/datasources/InfluxDB.yml`:
@@ -70,7 +73,7 @@ If you want to setup everything manually, start each container step by step as f
 7. Run your k6 tests
 
    ```sh
-   docker exec -it k6 k6 run /tests/UI/racom/homepage/homepage.js
+   docker exec k6 k6 run /tests/API/pizza/getDoughs/getDoughsTest.js -e SCENARIO=100iter-10vu --tag testName=K6-API-getDoughs --tag project=quickPizza --tag testType=K6-API --tag release=dev --tag buildId=12345678
    ```
 
 8. View live dashboards in Grafana

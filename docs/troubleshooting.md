@@ -50,12 +50,6 @@ docker build -t custom-k6 .
 docker compose up -d --force-recreate k6
 ```
 
-**Remove all containers and volumes (full reset):**
-
-```sh
-docker compose down -v
-```
-
 ### Common Issues
 
 - Script not found:
@@ -70,10 +64,5 @@ docker compose down -v
   Always build the image first using the `docker build` command above.
 - InfluxDB unauthorized errors:
   Ensure you're using the correct org, bucket, and token as described above.
-- To reset InfluxDB setup:
-  Remove the `influxdb-data` docker volume and rerun onboarding if you want to start clean:
-  ```sh
-  docker compose down -v
-  ```
 
 ---
