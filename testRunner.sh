@@ -253,13 +253,12 @@ if [ "$test_type_folder" == "API" ]; then
         echo "  Category: $category"
         echo "  TestName: $test_name"
         echo "  Scenario: $selected_scenario"
-        echo "  testName: $test_name"
         echo "  release: $release"
         echo "  buildId: $build_id"
         
         docker exec \
             -e SCENARIO="$selected_scenario" \
-            k6 k6 run "/tests/$test_type_folder/$test_path" \
+            -it k6 k6 run "/tests/$test_type_folder/$test_path" \
             --tag testName="$test_name" \
             --tag testid="$testid" \
             --tag project="$project" \
@@ -278,8 +277,7 @@ else
         base_url="$base_url_from_env"
         echo "Using BASEURL from .env: $base_url"
     else
-        read -p "Enter base URL (default: http://quickpizza:3333): " base_url
-        base_url=${base_url:-http://quickpizza:3333}
+        read -p "Enter base URL: " base_url
     fi
     echo ""
     
@@ -293,7 +291,7 @@ else
         echo -e "\n[$counter/${#paths_to_test[@]}] Testing: $full_url"
         echo "  TestName: $test_name"
         echo "  Scenario: $selected_scenario"
-        echo "  testName: $test_name"
+
         echo "  release: $release"
         echo "  buildId: $build_id"
         

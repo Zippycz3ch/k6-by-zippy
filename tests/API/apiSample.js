@@ -19,7 +19,7 @@ export const options = {
 };
 
 export function setup() {
-  const baseUrl = __ENV.BASEURL || "http://quickpizza:3333";
+  const baseUrl = __ENV.BASEURL;
   const token = __ENV.PIZZA_TOKEN;
   return { baseUrl, token };
 }

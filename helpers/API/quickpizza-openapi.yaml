@@ -43,7 +43,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Restrictions'
+              $ref: "#/components/schemas/Restrictions"
             example:
               maxCaloriesPerSlice: 800
               mustBeVegetarian: true
@@ -53,12 +53,12 @@ paths:
               minNumberOfToppings: 2
         required: false
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PizzaRecommendation'
+                $ref: "#/components/schemas/PizzaRecommendation"
               example:
                 pizza:
                   id: 1
@@ -87,9 +87,9 @@ paths:
                   tool: "Wood Fired Oven"
                 calories: 505
                 vegetarian: true
-        '401':
+        "401":
           description: Unauthorized
-        '500':
+        "500":
           description: Internal server error
 
   /api/pizza/{id}:
@@ -111,15 +111,15 @@ paths:
             format: int64
           example: 1
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Pizza'
-        '404':
+                $ref: "#/components/schemas/Pizza"
+        "404":
           description: Pizza not found
-        '500':
+        "500":
           description: Internal server error
 
   /api/ingredients/{type}:
@@ -141,7 +141,7 @@ paths:
             enum: [olive_oil, tomato, mozzarella, topping]
           example: topping
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
@@ -151,7 +151,7 @@ paths:
                   ingredients:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Ingredient'
+                      $ref: "#/components/schemas/Ingredient"
               example:
                 ingredients:
                   - id: 1
@@ -162,11 +162,11 @@ paths:
                     name: "Mushrooms"
                     caloriesPerSlice: 15
                     vegetarian: true
-        '400':
+        "400":
           description: Invalid ingredient type
-        '401':
+        "401":
           description: Unauthorized
-        '500':
+        "500":
           description: Internal server error
 
   /api/doughs:
@@ -179,7 +179,7 @@ paths:
       security:
         - authToken: []
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
@@ -189,7 +189,7 @@ paths:
                   doughs:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Dough'
+                      $ref: "#/components/schemas/Dough"
               example:
                 doughs:
                   - id: 1
@@ -201,9 +201,9 @@ paths:
                   - id: 3
                     name: "Deep Dish"
                     caloriesPerSlice: 300
-        '401':
+        "401":
           description: Unauthorized
-        '500':
+        "500":
           description: Internal server error
 
   /api/tools:
@@ -216,7 +216,7 @@ paths:
       security:
         - authToken: []
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
@@ -233,9 +233,9 @@ paths:
                   - "Pizza Stone"
                   - "Gas Oven"
                   - "Electric Oven"
-        '401':
+        "401":
           description: Unauthorized
-        '500':
+        "500":
           description: Internal server error
 
   /api/ratings:
@@ -252,25 +252,25 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Rating'
+              $ref: "#/components/schemas/Rating"
             example:
               stars: 5
               pizza_id: 1
         required: true
       responses:
-        '201':
+        "201":
           description: Rating created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Rating'
+                $ref: "#/components/schemas/Rating"
               example:
                 id: 1
                 stars: 5
                 pizza_id: 1
-        '400':
+        "400":
           description: Invalid input
-        '401':
+        "401":
           description: Unauthorized
     get:
       tags:
@@ -281,7 +281,7 @@ paths:
       security:
         - authToken: []
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
@@ -291,7 +291,7 @@ paths:
                   ratings:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Rating'
+                      $ref: "#/components/schemas/Rating"
               example:
                 ratings:
                   - id: 1
@@ -300,9 +300,9 @@ paths:
                   - id: 2
                     stars: 4
                     pizza_id: 2
-        '401':
+        "401":
           description: Unauthorized
-        '500':
+        "500":
           description: Internal server error
     delete:
       tags:
@@ -313,11 +313,11 @@ paths:
       security:
         - authToken: []
       responses:
-        '204':
+        "204":
           description: All ratings deleted successfully
-        '401':
+        "401":
           description: Unauthorized
-        '500':
+        "500":
           description: Internal server error
 
   /api/ratings/{id}:
@@ -339,21 +339,21 @@ paths:
             format: int64
           example: 1
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Rating'
+                $ref: "#/components/schemas/Rating"
               example:
                 id: 1
                 stars: 5
                 pizza_id: 1
-        '401':
+        "401":
           description: Unauthorized
-        '404':
+        "404":
           description: Rating not found
-        '500':
+        "500":
           description: Internal server error
     put:
       tags:
@@ -377,27 +377,27 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Rating'
+              $ref: "#/components/schemas/Rating"
             example:
               stars: 4
               pizza_id: 1
         required: true
       responses:
-        '200':
+        "200":
           description: Rating updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Rating'
+                $ref: "#/components/schemas/Rating"
               example:
                 id: 1
                 stars: 4
                 pizza_id: 1
-        '400':
+        "400":
           description: Invalid input
-        '401':
+        "401":
           description: Unauthorized
-        '404':
+        "404":
           description: Rating not found
     patch:
       tags:
@@ -421,26 +421,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Rating'
+              $ref: "#/components/schemas/Rating"
             example:
               stars: 3
         required: true
       responses:
-        '200':
+        "200":
           description: Rating updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Rating'
+                $ref: "#/components/schemas/Rating"
               example:
                 id: 1
                 stars: 3
                 pizza_id: 1
-        '400':
+        "400":
           description: Invalid input
-        '401':
+        "401":
           description: Unauthorized
-        '404':
+        "404":
           description: Rating not found
     delete:
       tags:
@@ -460,11 +460,11 @@ paths:
             format: int64
           example: 1
       responses:
-        '204':
+        "204":
           description: Rating deleted successfully
-        '401':
+        "401":
           description: Unauthorized
-        '404':
+        "404":
           description: Rating not found
 
   /api/users:
@@ -494,7 +494,7 @@ paths:
               password: "securepassword"
         required: true
       responses:
-        '201':
+        "201":
           description: User created successfully
           content:
             application/json:
@@ -509,7 +509,7 @@ paths:
               example:
                 id: 1
                 username: "pizzalover123"
-        '400':
+        "400":
           description: Invalid input or username already taken
 
   /api/users/token/login:
@@ -549,7 +549,7 @@ paths:
               csrf: "abc123def456ghi789"
         required: true
       responses:
-        '200':
+        "200":
           description: Login successful
           content:
             application/json:
@@ -560,7 +560,7 @@ paths:
                     type: string
               example:
                 token: "abcdef1234567890"
-        '401':
+        "401":
           description: Invalid credentials
 
   /api/users/token/logout:
@@ -573,9 +573,9 @@ paths:
       security:
         - authToken: []
       responses:
-        '200':
+        "200":
           description: Logout successful
-        '401':
+        "401":
           description: Unauthorized
 
   /api/admin/login:
@@ -601,7 +601,7 @@ paths:
             type: string
           example: "admin"
       responses:
-        '200':
+        "200":
           description: Admin login successful
           content:
             application/json:
@@ -617,9 +617,9 @@ paths:
               schema:
                 type: string
                 example: admin_token=c7jn1o1kb71p30h7f1bg; Path=/; SameSite=Strict
-        '400':
+        "400":
           description: Missing credentials
-        '401':
+        "401":
           description: Invalid credentials
 
   /api/csrf-token:
@@ -630,7 +630,7 @@ paths:
       description: Get a CSRF token for form submissions
       operationId: getCsrfToken
       responses:
-        '200':
+        "200":
           description: CSRF token set in cookies
           headers:
             Set-Cookie:
@@ -646,7 +646,7 @@ paths:
       description: Returns a list of pizza-related quotes
       operationId: getQuotes
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
@@ -662,7 +662,7 @@ paths:
                   - "Life is too short for bad pizza."
                   - "A slice a day keeps the sadness away."
                   - "In crust we trust."
-        '500':
+        "500":
           description: Internal server error
 
   /api/names:
@@ -673,7 +673,7 @@ paths:
       description: Returns a list of classical names for pizza naming
       operationId: getNames
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
@@ -690,7 +690,7 @@ paths:
                   - "Napolitana"
                   - "Quattro Formaggi"
                   - "Diavola"
-        '500':
+        "500":
           description: Internal server error
 
   /api/adjectives:
@@ -701,7 +701,7 @@ paths:
       description: Returns a list of adjectives for pizza naming
       operationId: getAdjectives
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
@@ -718,7 +718,7 @@ paths:
                   - "Delicious"
                   - "Crispy"
                   - "Amazing"
-        '500':
+        "500":
           description: Internal server error
 
   /api/config:
@@ -729,7 +729,7 @@ paths:
       description: Get the current application configuration
       operationId: getConfig
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
@@ -740,7 +740,7 @@ paths:
               example:
                 version: "1.0.0"
                 environment: "development"
-        '500':
+        "500":
           description: Internal server error
 
   /ready:
@@ -751,9 +751,9 @@ paths:
       description: Check if the application is ready to accept requests
       operationId: readinessProbe
       responses:
-        '200':
+        "200":
           description: Application is ready
-        '500':
+        "500":
           description: Application is not ready
 
   /healthz:
@@ -764,9 +764,9 @@ paths:
       description: Check if the application is live
       operationId: livenessProbe
       responses:
-        '200':
+        "200":
           description: Application is live
-        '500':
+        "500":
           description: Application is not live
 
   /metrics:
@@ -777,7 +777,7 @@ paths:
       description: Get Prometheus metrics
       operationId: getMetrics
       responses:
-        '200':
+        "200":
           description: Metrics returned
           content:
             text/plain:
@@ -822,7 +822,7 @@ paths:
             minimum: 0
           example: 1024
       responses:
-        '200':
+        "200":
           description: Random bytes
           content:
             application/octet-stream:
@@ -846,7 +846,7 @@ paths:
             type: string
           example: "2s"
       responses:
-        '200':
+        "200":
           description: Response after delay
 
   /api/get:
@@ -857,7 +857,7 @@ paths:
       description: Test endpoint for GET requests
       operationId: httpGet
       responses:
-        '200':
+        "200":
           description: OK
 
   /api/delete:
@@ -868,7 +868,7 @@ paths:
       description: Test endpoint for DELETE requests
       operationId: httpDelete
       responses:
-        '200':
+        "200":
           description: OK
 
   /api/post:
@@ -880,14 +880,14 @@ paths:
       operationId: httpPost
       requestBody:
         content:
-          '*/*':
+          "*/*":
             schema:
               type: string
       responses:
-        '200':
+        "200":
           description: Request body echoed back
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
 
@@ -900,14 +900,14 @@ paths:
       operationId: httpPut
       requestBody:
         content:
-          '*/*':
+          "*/*":
             schema:
               type: string
       responses:
-        '200':
+        "200":
           description: Request body echoed back
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
 
@@ -920,14 +920,14 @@ paths:
       operationId: httpPatch
       requestBody:
         content:
-          '*/*':
+          "*/*":
             schema:
               type: string
       responses:
-        '200':
+        "200":
           description: Request body echoed back
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: string
 
@@ -939,7 +939,7 @@ paths:
       description: Returns all the cookies sent with the request
       operationId: getCookies
       responses:
-        '200':
+        "200":
           description: Cookies in the request
           content:
             application/json:
@@ -967,7 +967,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Cookies have been set
           headers:
             Set-Cookie:
@@ -983,7 +983,7 @@ paths:
       description: Returns the headers sent with the request
       operationId: getHeaders
       responses:
-        '200':
+        "200":
           description: Headers in the request
           content:
             application/json:
@@ -1023,7 +1023,7 @@ paths:
             type: string
           example: "password"
       responses:
-        '200':
+        "200":
           description: Basic auth result
           content:
             application/json:
@@ -1055,7 +1055,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Query parameters as JSON
           content:
             application/json:
@@ -1081,7 +1081,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Query parameters as XML
           content:
             application/xml:
@@ -1119,7 +1119,7 @@ components:
       type: object
       properties:
         pizza:
-          $ref: '#/components/schemas/Pizza'
+          $ref: "#/components/schemas/Pizza"
         calories:
           type: integer
           description: Total calories per slice
@@ -1141,11 +1141,11 @@ components:
           maxLength: 64
           example: "The Savory Margherita"
         dough:
-          $ref: '#/components/schemas/Dough'
+          $ref: "#/components/schemas/Dough"
         ingredients:
           type: array
           items:
-            $ref: '#/components/schemas/Ingredient'
+            $ref: "#/components/schemas/Ingredient"
         tool:
           type: string
           description: Tool used to make the pizza

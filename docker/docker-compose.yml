@@ -27,17 +27,15 @@ services:
     container_name: k6
     depends_on:
       - influxdb
+    env_file:
+      - ../.env
     environment:
       - ENVIRONMENT=dev
-      - BASEURL=http://quickpizza:3333
-      # - BASEURL=https://quickpizza.grafana.com
-      - PIZZA_TOKEN=abcdef0123456789
     volumes:
       - ../tests:/tests
       - ../interface:/interface
       - ../helpers:/helpers
       - ../screenshots:/screenshots
-      - ../config.json:/config.json
     working_dir: /tests
     stdin_open: true
     tty: true

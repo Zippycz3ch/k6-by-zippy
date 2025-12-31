@@ -30,7 +30,7 @@ export const options = {
 export function setup() { }
 
 export async function test() {
-    const baseUrl = __ENV.BASEURL || "http://quickpizza:3333";
+    const baseUrl = __ENV.BASEURL;
     const path = "/";
     const url = `${baseUrl}${path}`;
     const testName = "sample-home";

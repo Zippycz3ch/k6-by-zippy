@@ -270,13 +270,12 @@ if ($testTypeFolder -eq "API") {
         Write-Host "  Category: $category"
         Write-Host "  TestName: $testName"
         Write-Host "  Scenario: $selectedScenario"
-        Write-Host "  testName: $testName"
         Write-Host "  release: $release"
         Write-Host "  buildId: $buildId"
         
         docker exec `
             -e SCENARIO="$selectedScenario" `
-            k6 k6 run "/tests/$testTypeFolder/$testPath" `
+            -it k6 k6 run "/tests/$testTypeFolder/$testPath" `
             --tag testName="$testName" `
             --tag testid="$testid" `
             --tag project="$project" `
@@ -299,10 +298,7 @@ else {
         Write-Host "Using BASEURL from .env: $baseUrl"
     }
     else {
-        $baseUrl = Read-Host "Enter base URL (default: http://quickpizza:3333)"
-        if ([string]::IsNullOrWhiteSpace($baseUrl)) {
-            $baseUrl = "http://quickpizza:3333"
-        }
+        $baseUrl = Read-Host "Enter base URL"
     }
     Write-Host ""
     
@@ -317,7 +313,6 @@ else {
         Write-Host "[$counter/$($pathsToTest.Count)] Testing: $fullUrl"
         Write-Host "  TestName: $testName"
         Write-Host "  Scenario: $selectedScenario"
-        Write-Host "  testName: $testName"
         Write-Host "  release: $release"
         Write-Host "  buildId: $buildId"
         

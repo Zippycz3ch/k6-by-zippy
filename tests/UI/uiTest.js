@@ -11,7 +11,7 @@ export const options = config;
 export function setup() {}
 
 export async function test() {
-  const baseUrl = __ENV.BASEURL || "http://quickpizza:3333";
+  const baseUrl = __ENV.BASEURL;
   const path = __ENV.path || "/";
   const testName = __ENV.testName;
   const url = `${baseUrl}${path}`;
