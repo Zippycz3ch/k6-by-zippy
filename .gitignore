@@ -1,7 +1,5 @@
 screenshots
 
-# Environment configuration
-.env
 
 # Docker artifacts
 docker/influxdb-data/
