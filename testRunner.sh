@@ -59,15 +59,11 @@ show_choice_prompt() {
     done
 }
 
-# 1. Ask for test type first
-echo "Test type:"
-echo "1: UI Tests"
-echo "2: API Tests"
+# 1. Ask for test type
+test_types=("UI Tests (default)" "API Tests")
+selected_type=$(show_choice_prompt "Test type:" "${test_types[@]}")
 
-read -p "Enter number (default: 1): " test_type_choice
-test_type_choice=${test_type_choice:-1}
-
-if [ "$test_type_choice" == "2" ]; then
+if [[ "$selected_type" =~ API ]]; then
     test_type_folder="API"
     test_type="K6-API"
 else
@@ -76,17 +72,8 @@ else
 fi
 
 project="quickPizza"
-echo -e "Selected test type: $test_type\n"
+echo -e "Selected: $test_type\n"
 
-# Read .env file for BASEURL
-base_url_from_env=""
-if [ -f "$(dirname "$0")/.env" ]; then
-    while IFS='=' read -r key value; do
-        if [[ "$key" == "BASEURL" ]]; then
-            base_url_from_env="${value//[$'\r\n']}"
-        fi
-    done < "$(dirname "$0")/.env"
-fi
 
 # 2. Find test root and files
 repo_root="$(cd "$(dirname "$0")" && pwd)"
@@ -134,8 +121,6 @@ else
     mapfile -t test_names < <(jq -r '.[].testName' "$data_file")
 fi
 
-echo -e "Found ${#paths[@]} path(s) to test"
-
 # 4. Ask for SCENARIO
 if [ "$test_type_folder" == "API" ]; then
     # API tests support more scenarios
@@ -150,6 +135,8 @@ if [ "$test_type_folder" == "API" ]; then
     )
     selected_scenario=$(show_choice_prompt "Which scenario?" "${scenarios[@]}")
     selected_scenario="${selected_scenario% (default)}"
+    
+    echo "Found ${#test_paths[@]} API test(s)"
 else
     # UI scenarios
     scenarios=(
@@ -159,22 +146,20 @@ else
     )
     selected_scenario=$(show_choice_prompt "Which scenario?" "${scenarios[@]}")
     selected_scenario="${selected_scenario% (default)}"
+    
+    echo "Found ${#paths[@]} path(s) to test"
 fi
 
 # 5. Ask for test range
 if [ "$test_type_folder" == "API" ]; then
-    echo -e "\nTest range options:"
-    echo "1: Test all ${#test_names[@]} tests"
-    echo "2: Test specific range"
-    
-    read -p "Enter number (default: 1): " range_choice
-    range_choice=${range_choice:-1}
+    range_options=("Test all ${#test_names[@]} tests (default)" "Test specific range")
+    range_choice=$(show_choice_prompt "Test range:" "${range_options[@]}")
     
     declare -a tests_to_run
     declare -a names_to_run
     declare -a categories_to_run
     
-    if [ "$range_choice" == "2" ]; then
+    if [[ "$range_choice" =~ specific ]]; then
         read -p "Start index (1-${#test_names[@]}): " start_idx
         read -p "End index (1-${#test_names[@]}): " end_idx
         
@@ -188,22 +173,16 @@ if [ "$test_type_folder" == "API" ]; then
         names_to_run=("${test_names[@]}")
         categories_to_run=("${test_categories[@]}")
     fi
-    
-    echo -e "\nReady to run ${#tests_to_run[@]} test(s) with scenario $selected_scenario."
 fi
 
 if [ "$test_type_folder" == "UI" ]; then
-    echo -e "\nTest range options:"
-    echo "1: Test all ${#paths[@]} paths"
-    echo "2: Test specific range"
-    
-    read -p "Enter number (default: 1): " range_choice
-    range_choice=${range_choice:-1}
+    range_options=("Test all ${#paths[@]} paths (default)" "Test specific range")
+    range_choice=$(show_choice_prompt "Test range:" "${range_options[@]}")
     
     declare -a paths_to_test
     declare -a test_names_to_test
     
-    if [ "$range_choice" == "2" ]; then
+    if [[ "$range_choice" =~ specific ]]; then
         read -p "Start index (1-${#paths[@]}): " start_idx
         read -p "End index (1-${#paths[@]}): " end_idx
         
@@ -215,11 +194,9 @@ if [ "$test_type_folder" == "UI" ]; then
         paths_to_test=("${paths[@]}")
         test_names_to_test=("${test_names[@]}")
     fi
-    
-    echo -e "\nReady to run ${#paths_to_test[@]} test(s) with scenario $selected_scenario."
 fi
 
-read -p "Enter release name (e.g., v1.2.3, sprint-45): " release
+read -p "Enter release name (default: dev): " release
 release=${release:-dev}
 
 read -p "Enter buildId (8-digit number, press Enter to generate): " build_id
@@ -236,12 +213,19 @@ if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
     exit 0
 fi
 
+# Show what we're about to run
+if [ "$test_type_folder" == "API" ]; then
+    echo -e "\nReady to run ${#tests_to_run[@]} test(s) with scenario $selected_scenario."
+else
+    echo -e "\nReady to run ${#paths_to_test[@]} test(s) with scenario $selected_scenario."
+fi
+
 # 6. Run k6 for each test
 declare -a exit_codes
 counter=1
 
 if [ "$test_type_folder" == "API" ]; then
-    echo -e "\nAPI tests will run with scenario: $selected_scenario\n"
+    echo -e "\nRunning API tests with scenario: $selected_scenario\n"
     
     for i in "${!tests_to_run[@]}"; do
         test_path="${tests_to_run[$i]}"
@@ -270,34 +254,22 @@ if [ "$test_type_folder" == "API" ]; then
         ((counter++))
     done
 else
-    echo -e "\nUI tests will run with scenario: $selected_scenario\n"
-    
-    # Use BASEURL from .env file
-    if [ -n "$base_url_from_env" ]; then
-        base_url="$base_url_from_env"
-        echo "Using BASEURL from .env: $base_url"
-    else
-        read -p "Enter base URL: " base_url
-    fi
-    echo ""
+    echo -e "\nRunning UI tests with scenario: $selected_scenario\n"
     
     for i in "${!paths_to_test[@]}"; do
         path="${paths_to_test[$i]}"
         test_name="${test_names_to_test[$i]}"
         testid="$project-$test_name"
         container_path="/tests/$test_type_folder/uiTest.js"
-        full_url="$base_url$path"
         
-        echo -e "\n[$counter/${#paths_to_test[@]}] Testing: $full_url"
+        echo -e "\n[$counter/${#paths_to_test[@]}] Testing: $test_name ($path)"
         echo "  TestName: $test_name"
         echo "  Scenario: $selected_scenario"
-
         echo "  release: $release"
         echo "  buildId: $build_id"
         
         docker exec \
             -e SCENARIO="$selected_scenario" \
-            -e BASEURL="$base_url" \
             -e path="$path" \
             -e testName="$test_name" \
             -e testType="$test_type_folder" \

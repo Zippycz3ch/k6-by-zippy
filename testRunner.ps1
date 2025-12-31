@@ -45,16 +45,10 @@ function Show-ChoicePrompt {
 }
 
 # 1. Ask for test type
-Write-Host "Test type:"
-Write-Host "1: UI Tests"
-Write-Host "2: API Tests"
+$testTypes = @("UI Tests (default)", "API Tests")
+$selectedType = Show-ChoicePrompt -Message "Test type:" -Options $testTypes
 
-$testTypeChoice = Read-Host "Enter number (default: 1)"
-if ([string]::IsNullOrWhiteSpace($testTypeChoice)) {
-    $testTypeChoice = "1"
-}
-
-if ($testTypeChoice -eq "2") {
+if ($selectedType -match "API") {
     $testTypeFolder = "API"
     $testType = "K6-API"
 }
@@ -64,8 +58,7 @@ else {
 }
 
 $project = "quickPizza"
-Write-Host "Selected test type: $testType"
-Write-Host ""
+Write-Host "Selected: $testType`n"
 
 # 2. Find test root and files
 if ($PSScriptRoot) {
@@ -105,8 +98,6 @@ if ($testTypeFolder -eq "API") {
         $testNames += $testName
         $testCategories += $category
     }
-    
-    Write-Host "Found $($testPaths.Count) API test(s)"
 }
 else {
     # UI tests use data.json
@@ -120,8 +111,6 @@ else {
     $dataContent = Get-Content $dataFile -Raw | ConvertFrom-Json
     $paths = $dataContent | ForEach-Object { $_.path }
     $testNames = $dataContent | ForEach-Object { $_.testName }
-    
-    Write-Host "Found $($paths.Count) path(s) to test"
 }
 
 # 4. Ask for SCENARIO
@@ -138,6 +127,8 @@ if ($testTypeFolder -eq "API") {
     )
     $selectedScenario = Show-ChoicePrompt -Message "Which scenario?" -Options $scenarios
     $selectedScenario = $selectedScenario -replace " \(default\)", ""
+    
+    Write-Host "Found $($testPaths.Count) API test(s)"
 }
 else {
     # UI scenarios
@@ -148,25 +139,20 @@ else {
     )
     $selectedScenario = Show-ChoicePrompt -Message "Which scenario?" -Options $scenarios
     $selectedScenario = $selectedScenario -replace " \(default\)", ""
+    
+    Write-Host "Found $($paths.Count) path(s) to test"
 }
 
 # 5. Ask for test range
 if ($testTypeFolder -eq "API") {
-    Write-Host ""
-    Write-Host "Test range options:"
-    Write-Host "1: Test all $($testNames.Count) tests"
-    Write-Host "2: Test specific range"
-    
-    $rangeChoice = Read-Host "Enter number (default: 1)"
-    if ([string]::IsNullOrWhiteSpace($rangeChoice)) {
-        $rangeChoice = "1"
-    }
+    $rangeOptions = @("Test all $($testNames.Count) tests (default)", "Test specific range")
+    $rangeChoice = Show-ChoicePrompt -Message "Test range:" -Options $rangeOptions
     
     $testsToRun = @()
     $namesToRun = @()
     $categoriesToRun = @()
     
-    if ($rangeChoice -eq "2") {
+    if ($rangeChoice -match "specific") {
         $startIdx = Read-Host "Start index (1-$($testNames.Count))"
         $endIdx = Read-Host "End index (1-$($testNames.Count))"
         
@@ -181,26 +167,16 @@ if ($testTypeFolder -eq "API") {
         $namesToRun = $testNames
         $categoriesToRun = $testCategories
     }
-    
-    Write-Host ""
-    Write-Host "Ready to run $($testsToRun.Count) test(s) with scenario $selectedScenario."
 }
 
 if ($testTypeFolder -eq "UI") {
-    Write-Host ""
-    Write-Host "Test range options:"
-    Write-Host "1: Test all $($paths.Count) paths"
-    Write-Host "2: Test specific range"
-    
-    $rangeChoice = Read-Host "Enter number (default: 1)"
-    if ([string]::IsNullOrWhiteSpace($rangeChoice)) {
-        $rangeChoice = "1"
-    }
+    $rangeOptions = @("Test all $($paths.Count) paths (default)", "Test specific range")
+    $rangeChoice = Show-ChoicePrompt -Message "Test range:" -Options $rangeOptions
     
     $pathsToTest = @()
     $testNamesToTest = @()
     
-    if ($rangeChoice -eq "2") {
+    if ($rangeChoice -match "specific") {
         $startIdx = Read-Host "Start index (1-$($paths.Count))"
         $endIdx = Read-Host "End index (1-$($paths.Count))"
         
@@ -213,17 +189,14 @@ if ($testTypeFolder -eq "UI") {
         $pathsToTest = $paths
         $testNamesToTest = $testNames
     }
-    
-    Write-Host ""
-    Write-Host "Ready to run $($pathsToTest.Count) test(s) with scenario $selectedScenario."
 }
 
-$release = Read-Host "Enter release name (e.g. v1.2.3 or sprint-45)"
+$release = Read-Host "Enter release name (default: dev)"
 if ([string]::IsNullOrWhiteSpace($release)) {
     $release = "dev"
 }
 
-$buildId = Read-Host "Enter buildId (8-digit number or press Enter to generate)"
+$buildId = Read-Host "Enter buildId (8-digit number, press Enter to generate)"
 if ([string]::IsNullOrWhiteSpace($buildId)) {
     $buildId = Get-Random -Minimum 10000000 -Maximum 99999999
     Write-Host "Generated buildId: $buildId"
@@ -239,14 +212,20 @@ if ($confirm -notmatch '^[Yy]$') {
     exit 0
 }
 
+# Show what we're about to run
+if ($testTypeFolder -eq "API") {
+    Write-Host "`nReady to run $($testsToRun.Count) test(s) with scenario $selectedScenario."
+}
+else {
+    Write-Host "`nReady to run $($pathsToTest.Count) test(s) with scenario $selectedScenario."
+}
+
 # 6. Run k6 for each test
 $exitCodes = @()
 $counter = 1
 
 if ($testTypeFolder -eq "API") {
-    Write-Host ""
-    Write-Host "API tests will run with scenario: $selectedScenario"
-    Write-Host ""
+    Write-Host "`nRunning API tests with scenario: $selectedScenario`n"
     
     for ($i = 0; $i -lt $testsToRun.Count; $i++) {
         $testPath = $testsToRun[$i]
@@ -277,9 +256,7 @@ if ($testTypeFolder -eq "API") {
     }
 }
 else {
-    Write-Host ""
-    Write-Host "UI tests will run with scenario: $selectedScenario"
-    Write-Host ""
+    Write-Host "`nRunning UI tests with scenario: $selectedScenario`n"
     
     for ($i = 0; $i -lt $pathsToTest.Count; $i++) {
         $path = $pathsToTest[$i]
