@@ -1,7 +1,7 @@
 import { sleep } from "k6";
 import { postRatings } from "../../../../interface/api/ratings/postRatings.js";
 import { postPizza } from "../../../../interface/api/pizza/postPizza.js";
-import { getScenarioConfig, getCommonThresholds, logTestStart, logTestEnd } from "../../../../helpers/testConfig.js";
+import { getScenarioConfig, getCommonThresholds, logTestStart, logTestEnd } from "../../testConfig.js";
 
 export const options = {
   scenarios: {

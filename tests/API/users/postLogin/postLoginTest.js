@@ -2,7 +2,7 @@ import { sleep } from "k6";
 import { postLogin } from "../../../../interface/api/users/postLogin.js";
 import { registerUsersForTest } from "../../../../helpers/registerUsersForTest.js";
 import { getReadyUser } from "../../../../helpers/getReadyUser.js";
-import { getScenarioConfig, getCommonThresholds, logTestStart, logTestEnd } from "../../../../helpers/testConfig.js";
+import { getScenarioConfig, getCommonThresholds, logTestStart, logTestEnd } from "../../testConfig.js";
 
 export const options = {
   scenarios: {

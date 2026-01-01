@@ -1,6 +1,6 @@
 import { sleep } from "k6";
 import { getDoughs } from "../../../../interface/api/pizza/getDoughs.js";
-import { getScenarioConfig, getCommonThresholds, logTestStart, logTestEnd } from "../../../../helpers/testConfig.js";
+import { getScenarioConfig, getCommonThresholds, logTestStart, logTestEnd } from "../../testConfig.js";
 
 export const options = {
   scenarios: {
