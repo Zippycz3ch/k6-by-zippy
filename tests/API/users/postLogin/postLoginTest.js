@@ -2,6 +2,7 @@ import { sleep } from "k6";
 import { postLogin } from "../../../../interface/api/users/postLogin.js";
 import { registerUsersForTest } from "../../../../helpers/registerUsersForTest.js";
 import { getReadyUser } from "../../../../helpers/getReadyUser.js";
+import { getMaxVUsConfig } from "../../../../helpers/getMaxVUsConfig.js";
 import { getScenarioConfig, getCommonThresholds, logTestStart, logTestEnd } from "../../testConfig.js";
 
 export const options = {
@@ -15,7 +16,7 @@ export const options = {
 
 export function setup() {
   const scenarioConfig = getScenarioConfig("postLoginTest");
-  const maxVUs = scenarioConfig.vus || 1;
+  const maxVUs = getMaxVUsConfig(scenarioConfig);
 
   console.log(`Max VUs: ${maxVUs}`);
 

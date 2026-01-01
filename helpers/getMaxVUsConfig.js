@@ -1,18 +1,20 @@
-export function getMaxVUsConfig(optionsJson) {
+export function getMaxVUsConfig(scenarioConfig) {
   let maxVUs = 1;
 
-  if (optionsJson.scenarios) {
-    for (const scenarioName in optionsJson.scenarios) {
-      const scenario = optionsJson.scenarios[scenarioName];
-      if (scenario.vus && scenario.vus > maxVUs) {
-        maxVUs = scenario.vus;
-      }
-      if (scenario.stages) {
-        for (const stage of scenario.stages) {
-          if (stage.target && stage.target > maxVUs) {
-            maxVUs = stage.target;
-          }
-        }
+  // Handle shared-iterations executor
+  if (scenarioConfig.vus && scenarioConfig.vus > maxVUs) {
+    maxVUs = scenarioConfig.vus;
+  }
+
+  // Handle ramping-vus executor
+  if (scenarioConfig.startVUs && scenarioConfig.startVUs > maxVUs) {
+    maxVUs = scenarioConfig.startVUs;
+  }
+
+  if (scenarioConfig.stages) {
+    for (const stage of scenarioConfig.stages) {
+      if (stage.target && stage.target > maxVUs) {
+        maxVUs = stage.target;
       }
     }
   }
