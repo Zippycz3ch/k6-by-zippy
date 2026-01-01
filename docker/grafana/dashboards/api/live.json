@@ -28,19 +28,6 @@
   "links": [],
   "panels": [
     {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 29,
-      "panels": [],
-      "title": "Test",
-      "type": "row"
-    },
-    {
       "datasource": {
         "type": "influxdb",
         "uid": "P5697886F9CA74929"
@@ -108,7 +95,7 @@
         "h": 12,
         "w": 12,
         "x": 0,
-        "y": 1
+        "y": 0
       },
       "id": 11,
       "maxDataPoints": 200000,
@@ -206,7 +193,7 @@
         "h": 12,
         "w": 12,
         "x": 12,
-        "y": 1
+        "y": 0
       },
       "id": 19,
       "maxDataPoints": 35000,
@@ -308,7 +295,7 @@
         "h": 21,
         "w": 12,
         "x": 0,
-        "y": 13
+        "y": 12
       },
       "id": 146,
       "maxDataPoints": 35000,
@@ -407,7 +394,7 @@
         "h": 21,
         "w": 12,
         "x": 12,
-        "y": 13
+        "y": 12
       },
       "id": 145,
       "maxDataPoints": 35000,
@@ -530,7 +517,7 @@
         "h": 24,
         "w": 24,
         "x": 0,
-        "y": 34
+        "y": 33
       },
       "id": 143,
       "options": {
@@ -589,7 +576,7 @@
       {
         "allowCustomValue": false,
         "current": {
-          "text": "All",
+          "text": ["All"],
           "value": ["$__all"]
         },
         "datasource": {
@@ -872,5 +859,5 @@
   "timezone": "",
   "title": "K6 - API - Live",
   "uid": "ad87c5l",
-  "version": 27
+  "version": 29
 }

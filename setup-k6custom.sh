@@ -165,7 +165,7 @@ echo -e "   ${YELLOW}This will test the API and UI with default scenarios.${NC}"
 read -p "Do you want to run the sample tests now? [Y/N]: " run_sample
 if [[ "$run_sample" =~ ^[Yy]$ ]] || [ -z "$run_sample" ]; then
     echo -e "\n${CYAN}--- Running API Sample Test (inline simple test) ---${NC}"
-    docker exec k6 k6 run /tests/API/apiSample.js \
+    docker exec -it k6 k6 run /tests/API/apiSample.js \
         --tag testName=K6-API-apiSample \
         --tag project=quickPizza \
         --tag testType=K6-API \
