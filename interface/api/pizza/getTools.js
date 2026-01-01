@@ -10,7 +10,6 @@ export function getTools() {
   };
 
   const url = `${__ENV.BASEURL}/api/tools`;
-  console.log(`[API REQUEST] Full URL: ${url}`);
   const res = http.get(url, params);
 
   const { data } = check200(res, params.tags.name);

@@ -16,7 +16,6 @@ export async function test() {
   const testName = __ENV.testName;
   const url = `${baseUrl}${path}`;
 
-  console.log(`[UI TEST] Full URL: ${url}`);
   console.log(`--- Starting: ${testName} | url: ${url} | ITER ${__ITER} | VU ${__VU} ---`);
   const page = await prepareUI();
 

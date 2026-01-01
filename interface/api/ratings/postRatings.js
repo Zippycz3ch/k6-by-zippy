@@ -16,7 +16,6 @@ export function postRatings(pizzaId, stars) {
   };
 
   const url = `${__ENV.BASEURL}/api/ratings`;
-  console.log(`[API REQUEST] Full URL: ${url}`);
   const res = http.post(url, payload, params);
 
   const { data } = check201(res, params.tags.name);

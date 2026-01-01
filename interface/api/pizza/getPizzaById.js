@@ -10,7 +10,6 @@ export function getPizzaById(pizzaId) {
   };
 
   const url = `${__ENV.BASEURL}/api/pizza/${pizzaId}`;
-  console.log(`[API REQUEST] Full URL: ${url}`);
   const res = http.get(url, params);
 
   const { data } = check200(res, params.tags.name);

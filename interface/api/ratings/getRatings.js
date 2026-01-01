@@ -1,10 +1,10 @@
 import http from "k6/http";
 import { check200 } from "../../../helpers/API/checkResponse.js";
 
-export function getRatings(token) {
+export function getRatings() {
   const params = {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${__ENV.PIZZA_TOKEN}`,
     },
     tags: { name: "Ratings/GetAll" },
   };

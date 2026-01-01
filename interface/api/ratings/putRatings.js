@@ -1,7 +1,7 @@
 import http from "k6/http";
 import { check200 } from "../../../helpers/API/checkResponse.js";
 
-export function putRatings(token, ratingId, pizzaId, stars) {
+export function putRatings(ratingId, pizzaId, stars) {
   const payload = JSON.stringify({
     pizza_id: pizzaId,
     stars: stars,
@@ -9,7 +9,7 @@ export function putRatings(token, ratingId, pizzaId, stars) {
 
   const params = {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${__ENV.PIZZA_TOKEN}`,
       "Content-Type": "application/json",
     },
     tags: { name: "Ratings/Update" },
