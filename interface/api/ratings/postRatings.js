@@ -1,5 +1,5 @@
 import http from "k6/http";
-import { check201 } from "../../../helpers/API/checkResponse.js";
+import { check201 } from "../../../helpers/API/checkResponse.ts";
 
 export function postRatings(pizzaId, stars) {
   const payload = JSON.stringify({

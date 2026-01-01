@@ -1,5 +1,5 @@
 import http from "k6/http";
-import { check200 } from "../../../helpers/API/checkResponse.js";
+import { check200 } from "../../../helpers/API/checkResponse.ts";
 
 export function postPizza() {
   const params = {

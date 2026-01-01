@@ -1,8 +1,8 @@
 import { sleep } from "k6";
 import { postLogin } from "../../../../interface/api/users/postLogin.js";
-import { registerUsersForTest } from "../../../../helpers/registerUsersForTest.js";
-import { getReadyUser } from "../../../../helpers/getReadyUser.js";
-import { getMaxVUsConfig } from "../../../../helpers/getMaxVUsConfig.js";
+import { registerUsersForTest } from "../../../../helpers/registerUsersForTest.ts";
+import { getReadyUser } from "../../../../helpers/getReadyUser.ts";
+import { getMaxVUsConfig } from "../../../../helpers/getMaxVUsConfig.ts";
 import { getScenarioConfig, getCommonThresholds, logTestStart, logTestEnd } from "../../testConfig.js";
 
 export const options = {
