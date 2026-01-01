@@ -132,6 +132,7 @@ if [ "$test_type_folder" == "API" ]; then
         "100iter-1vu"
         "100iter-5vu"
         "100iter-10vu"
+        "breakpoint"
     )
     selected_scenario=$(show_choice_prompt "Which scenario?" "${scenarios[@]}")
     selected_scenario="${selected_scenario% (default)}"

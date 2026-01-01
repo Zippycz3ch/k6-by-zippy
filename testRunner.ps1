@@ -123,7 +123,8 @@ if ($testTypeFolder -eq "API") {
         "20iter-10vu",
         "100iter-1vu",
         "100iter-5vu",
-        "100iter-10vu"
+        "100iter-10vu",
+        "breakpoint"
     )
     $selectedScenario = Show-ChoicePrompt -Message "Which scenario?" -Options $scenarios
     $selectedScenario = $selectedScenario -replace " \(default\)", ""

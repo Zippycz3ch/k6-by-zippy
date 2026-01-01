@@ -8,14 +8,29 @@ const SCENARIO_CONFIGS = {
   "100iter-1vu": { vus: 1, iterations: 100 },
   "100iter-5vu": { vus: 5, iterations: 100 },
   "100iter-10vu": { vus: 10, iterations: 100 },
+  breakpoint: {
+    executor: "ramping-vus",
+    startVUs: 1,
+    stages: [{ duration: "10m", target: 100 }],
+  },
 };
 
 export function getScenarioConfig(execName) {
   const scenario = __ENV.SCENARIO || "20iter-5vu";
+  const config = SCENARIO_CONFIGS[scenario];
 
+  // If it's a ramping scenario, return it directly with exec
+  if (config.executor === "ramping-vus") {
+    return {
+      ...config,
+      exec: execName,
+    };
+  }
+
+  // Otherwise, it's a shared-iterations scenario
   return {
     executor: "shared-iterations",
-    ...SCENARIO_CONFIGS[scenario],
+    ...config,
     maxDuration: "5m",
     exec: execName,
   };
