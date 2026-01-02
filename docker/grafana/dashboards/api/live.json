@@ -583,7 +583,7 @@
           "type": "influxdb",
           "uid": "P5697886F9CA74929"
         },
-        "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"testName\")",
+        "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"testName\", predicate: (r) => r.testType == \"K6-API\")",
         "includeAll": true,
         "label": "Test",
         "multi": true,
@@ -683,7 +683,7 @@
           "90": "d",
           "91": "\"",
           "92": ")",
-          "query": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"testName\")"
+          "query": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"testName\", predicate: (r) => r.testType == \"K6-API\")"
         },
         "refresh": 1,
         "regex": "",
@@ -699,7 +699,7 @@
           "type": "influxdb",
           "uid": "P5697886F9CA74929"
         },
-        "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"scenario\")",
+        "definition": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"scenario\", predicate: (r) => r.testType == \"K6-API\")",
         "includeAll": true,
         "label": "Config",
         "name": "scenario",
@@ -800,7 +800,7 @@
           "92": "o",
           "93": "\"",
           "94": ")",
-          "query": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"scenario\")"
+          "query": "import \"influxdata/influxdb/schema\"\r\nschema.tagValues(bucket: v.defaultBucket, tag: \"scenario\", predicate: (r) => r.testType == \"K6-API\")"
         },
         "refresh": 1,
         "regex": "",
@@ -808,8 +808,8 @@
       },
       {
         "current": {
-          "text": "All",
-          "value": "$__all"
+          "text": ["All"],
+          "value": ["$__all"]
         },
         "datasource": {
           "type": "influxdb",
@@ -852,12 +852,12 @@
     ]
   },
   "time": {
-    "from": "now-30m",
-    "to": "now"
+    "from": "2026-01-02T05:50:59.515Z",
+    "to": "2026-01-02T05:51:32.144Z"
   },
   "timepicker": {},
   "timezone": "",
   "title": "K6 - API - Live",
-  "uid": "ad87c5l",
-  "version": 29
+  "uid": "ad87mw4",
+  "version": 3
 }
