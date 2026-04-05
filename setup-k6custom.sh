@@ -83,8 +83,8 @@ echo -e "      ${YELLOW}Username:     k6user${NC}"
 echo -e "      ${YELLOW}Password:     k6password${NC}"
 echo -e "      ${YELLOW}Organization: k6org${NC}"
 echo -e "      ${YELLOW}Bucket:       k6${NC}"
-echo "   When the onboarding wizard finishes, it will show you the Admin Token."
-echo "   Copy the Admin Token and paste it below when ready."
+echo -e "   ${CYAN}When the onboarding wizard finishes, it will show you the Admin Token.${NC}"
+echo -e "   ${CYAN}Copy the Admin Token and paste it below when ready.${NC}"
 
 read -p "Do you want to open InfluxDB UI in your browser now? [Y/N]: " open_influx
 if [[ "$open_influx" =~ ^[Yy]$ ]] || [ -z "$open_influx" ]; then
@@ -135,10 +135,14 @@ echo -e "${GREEN}All containers started.${NC}"
 # 7. Grafana UID step (all dashboard .json)
 sleep 5
 echo -e "\n[7/9] Grafana setup required: Data source UID fix"
-echo -e "   ${YELLOW}- Grafana is now running at http://localhost:3000${NC}"
-echo -e "   ${YELLOW}- Log in with username: admin / password: admin${NC}"
-echo -e "   ${RED}- Go to Connections > Data sources > InfluxDB.${NC}"
-echo -e "   ${RED}- Copy the UID from the browser URL: /datasources/edit/<UID>${NC}"
+echo -e "   ${YELLOW}To connect your dashboards to InfluxDB, you need the Data Source UID:${NC}"
+echo -e "      ${YELLOW}URL:      http://localhost:3000${NC}"
+echo -e "      ${YELLOW}Username: admin${NC}"
+echo -e "      ${YELLOW}Password: admin${NC}"
+echo -e "   ${CYAN}Steps to get UID:${NC}"
+echo -e "      ${WHITE}1. Log in to Grafana${NC}"
+echo -e "      ${WHITE}2. Go to Connections > Data sources > InfluxDB${NC}"
+echo -e "      ${WHITE}3. Copy the UID from the browser URL: /datasources/edit/<UID>${NC}"
 
 read -p "Do you want to open Grafana in your browser now? [Y/N]: " open_grafana
 if [[ "$open_grafana" =~ ^[Yy]$ ]] || [ -z "$open_grafana" ]; then

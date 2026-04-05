@@ -82,8 +82,8 @@ Write-Host "      Username:     k6user"      -ForegroundColor Yellow
 Write-Host "      Password:     k6password"  -ForegroundColor Yellow
 Write-Host "      Organization: k6org"       -ForegroundColor Yellow
 Write-Host "      Bucket:       k6"          -ForegroundColor Yellow
-Write-Host "   When the onboarding wizard finishes, it will show you the Admin Token."
-Write-Host "   Copy the Admin Token and paste it below when ready."
+Write-Host "   When the onboarding wizard finishes, it will show you the Admin Token." -ForegroundColor Cyan
+Write-Host "   Copy the Admin Token and paste it below when ready." -ForegroundColor Cyan
 $openInflux = Read-Host "Do you want to open InfluxDB UI in your browser now? [Y/N]"
 if ($openInflux -eq "Y" -or $openInflux -eq "y" -or $openInflux -eq "") {
     Start-Process "http://localhost:8086"
@@ -127,11 +127,15 @@ Write-Host "All containers started." -ForegroundColor Green
 
 # 7. Grafana UID step (all dashboard .json)
 Start-Sleep -Seconds 5
-Write-Host "`n[7/9] Grafana setup required: Data source UID fix" 
-Write-Host "   - Grafana is now running at http://localhost:3000"       -ForegroundColor Yellow
-Write-Host "   - Log in with username: admin / password: admin"         -ForegroundColor Yellow
-Write-Host "   - Go to Connections > Data sources > InfluxDB."          -ForegroundColor Red
-Write-Host "   - Copy the UID from the browser URL: /datasources/edit/<UID>"-ForegroundColor Red
+Write-Host "`n[7/9] Grafana setup required: Data source UID fix"
+Write-Host "   To connect your dashboards to InfluxDB, you need the Data Source UID:" -ForegroundColor Yellow
+Write-Host "      URL:      http://localhost:3000"              -ForegroundColor Yellow
+Write-Host "      Username: admin"                               -ForegroundColor Yellow
+Write-Host "      Password: admin"                               -ForegroundColor Yellow
+Write-Host "   Steps to get UID:" -ForegroundColor Cyan
+Write-Host "      1. Log in to Grafana"                          -ForegroundColor White
+Write-Host "      2. Go to Connections > Data sources > InfluxDB" -ForegroundColor White
+Write-Host "      3. Copy the UID from the browser URL: /datasources/edit/<UID>" -ForegroundColor White
 $openGrafana = Read-Host "Do you want to open Grafana in your browser now? [Y/N]"
 if ($openGrafana -eq "Y" -or $openGrafana -eq "y" -or $openGrafana -eq "") {
     Start-Process "http://localhost:3000"
