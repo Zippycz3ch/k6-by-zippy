@@ -107,6 +107,10 @@ $influxymlPath = "./docker/grafana/provisioning/datasources/influxdb.yml"
 Update-FileContent -Path $influxymlPath -Search "(token:).*" -Replace "`$1 $token"
 Write-Host "  - influxdb.yml updated." -ForegroundColor Green
 
+$composePath = "./docker/docker-compose.yml"
+Update-FileContent -Path $composePath -Search "K6_INFLUXDB_TOKEN=.*" -Replace "K6_INFLUXDB_TOKEN=$token"
+Write-Host "  - docker-compose.yml updated." -ForegroundColor Green
+
 # 5. Build k6 image
 Write-Host "`n[5/9] Building your custom k6 Docker image..."
 Push-Location "./docker"

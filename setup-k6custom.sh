@@ -109,6 +109,10 @@ influxyml_path="./docker/grafana/provisioning/datasources/influxdb.yml"
 sed -i "s/\(token:\).*/\1 $token/" "$influxyml_path"
 echo -e "  ${GREEN}- influxdb.yml updated.${NC}"
 
+compose_path="./docker/docker-compose.yml"
+sed -i "s/K6_INFLUXDB_TOKEN=.*/K6_INFLUXDB_TOKEN=$token/" "$compose_path"
+echo -e "  ${GREEN}- docker-compose.yml updated.${NC}"
+
 # 5. Build k6 image
 echo -e "\n[5/9] Building your custom k6 Docker image..."
 pushd ./docker > /dev/null
