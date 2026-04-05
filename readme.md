@@ -107,7 +107,7 @@ Additional services:
 ## Additional Documentation
 
 - [Manual Test Execution](docs/manual-test-execution.md)
-- [Manual Setup Guide](docs/manual-setup.md)
+- [Manual Setup Guide](docs/manualSetup.md)
 - [Troubleshooting](docs/troubleshooting.md)
 
 ---
