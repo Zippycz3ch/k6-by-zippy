@@ -11,7 +11,7 @@ Change passwords for non-local deployments.
 - [k6](https://k6.io/)
 - [Grafana](https://grafana.com/)
 - [InfluxDB](https://www.influxdata.com/)
-- [QuickPizza API]([https://github.com/k6io/quickpizza](https://github.com/grafana/quickpizza))
+- [QuickPizza API](<[https://github.com/k6io/quickpizza](https://github.com/grafana/quickpizza)>)
 
 ---
 
