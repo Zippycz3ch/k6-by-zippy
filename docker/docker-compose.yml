@@ -37,7 +37,7 @@ services:
       - K6_INFLUXDB_ORGANIZATION=k6org
       - K6_INFLUXDB_BUCKET=k6
       - K6_INFLUXDB_INSECURE=true
-      - K6_INFLUXDB_TOKEN=dgA2prGhuU5v8OuCQaywZnyhwpnJBAXbTcriO8zshMQXn9dzeVMazKVJR1GwrG4Mv24R7LxSyt4JFXPCA1hqqw==
+      - K6_INFLUXDB_TOKEN=7xR0mBsyXqBczWNC6alkOa5mskrM2t2UtAuT8Mf28LYdRVDUQikfJyLfJU7HTuroebuzhESxvKg4FryadokJrA==
       - K6_INFLUXDB_PUSH_INTERVAL=1s
       - K6_SYSTEM_TAGS=proto,subproto,status,method,url,name,group,check,error,error_code,tls_version,scenario,service,expected_response,vu,iter
     volumes:

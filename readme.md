@@ -15,6 +15,15 @@ Change passwords for non-local deployments.
 
 ---
 
+### Screenshots
+
+| Grafana Dashboard                                                                | Test Runner                                                                |
+| -------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| <img src="docs/screenshots/dashboard1.png" width="200" alt="Grafana Dashboard"/> | <img src="docs/screenshots/testRunner.png" width="200" alt="Test Runner"/> |
+| Provisioned dashboard for performance testing                                    | Interactive runner for batch and configured test execution                 |
+
+---
+
 ## Quick Automated Setup (Recommended)
 
 Clone repository:
@@ -101,8 +110,6 @@ Additional services:
 
 - InfluxDB: [http://localhost:8086](http://localhost:8086)
 - QuickPizza API: [http://localhost:3333](http://localhost:3333)
-
----
 
 ## Additional Documentation
 
