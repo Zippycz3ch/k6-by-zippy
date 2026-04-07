@@ -17,10 +17,18 @@ Change passwords for non-local deployments.
 
 ### Screenshots
 
-|                                Grafana Dashboard                                 |                                Test Runner                                 |
-| :------------------------------------------------------------------------------: | :------------------------------------------------------------------------: |
-| <img src="docs/screenshots/dashboard1.png" width="200" alt="Grafana Dashboard"/> | <img src="docs/screenshots/testRunner.png" width="200" alt="Test Runner"/> |
-|                  Provisioned dashboard for performance testing                   |         Interactive runner for batch and configured test execution         |
+<div align="center">
+<table>
+  <tr>
+    <td align="center"><img src="docs/screenshots/dashboard1.png" width="200" alt="Grafana Dashboard"/><br/>Provisioned dashboard for UI performance testing</td>
+    <td align="center"><img src="docs/screenshots/testRunner.png" width="200" alt="Test Runner"/><br/>Interactive runner for batch and configured test execution</td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/breakpoint.png" width="200" alt="Breakpoint Test"/><br/>Breakpoint test results</td>
+    <td align="center"><img src="docs/screenshots/longTermAggregation.png" width="200" alt="Long-term Aggregation"/><br/>Long-term metrics aggregation view</td>
+  </tr>
+</table>
+</div>
 
 ---
 
