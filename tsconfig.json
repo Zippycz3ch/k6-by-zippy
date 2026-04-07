@@ -12,9 +12,8 @@
     "resolveJsonModule": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
-    "baseUrl": ".",
     "paths": {
-      "/helpers/*": ["helpers/*"]
+      "/helpers/*": ["./helpers/*"]
     }
   },
   "include": ["tests/**/*", "helpers/**/*"],
