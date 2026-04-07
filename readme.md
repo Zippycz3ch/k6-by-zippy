@@ -17,10 +17,10 @@ Change passwords for non-local deployments.
 
 ### Screenshots
 
-| Grafana Dashboard                                                                | Test Runner                                                                |
-| -------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+|                                Grafana Dashboard                                 |                                Test Runner                                 |
+| :------------------------------------------------------------------------------: | :------------------------------------------------------------------------: |
 | <img src="docs/screenshots/dashboard1.png" width="200" alt="Grafana Dashboard"/> | <img src="docs/screenshots/testRunner.png" width="200" alt="Test Runner"/> |
-| Provisioned dashboard for performance testing                                    | Interactive runner for batch and configured test execution                 |
+|                  Provisioned dashboard for performance testing                   |         Interactive runner for batch and configured test execution         |
 
 ---
 
