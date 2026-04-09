@@ -27,6 +27,10 @@ Change passwords for non-local deployments.
     <td align="center"><img src="docs/screenshots/breakpoint.png" width="200" alt="Breakpoint Test"/><br/>Breakpoint test results</td>
     <td align="center"><img src="docs/screenshots/longTermAggregation.png" width="200" alt="Long-term Aggregation"/><br/>Long-term metrics aggregation view</td>
   </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/compareResultsAPI.png" width="200" alt="API Release Comparison"/><br/>API release comparison - Compare two releases</td>
+    <td align="center"><img src="docs/screenshots/compareResultsUI.png" width="200" alt="UI Release Comparison"/><br/>UI release comparison - Compare two releases</td>
+  </tr>
 </table>
 </div>
 
